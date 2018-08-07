@@ -9,7 +9,7 @@ class WeeksFragmentPagerAdapter(fm: FragmentManager?) : FragmentStatePagerAdapte
 
     private val calendar: Calendar = Calendar.getInstance(Locale.getDefault())
 
-    override fun getItem(position: Int): Fragment = WeekFragment()
+    override fun getItem(position: Int): Fragment = WeekViewFragment.newInstance(position + 1)
 
     override fun getCount(): Int = this.calendar.getActualMaximum(Calendar.WEEK_OF_YEAR)
 }

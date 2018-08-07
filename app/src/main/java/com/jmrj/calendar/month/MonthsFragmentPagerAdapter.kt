@@ -9,7 +9,7 @@ internal class MonthsFragmentPagerAdapter(fm: FragmentManager?) : FragmentStateP
 
     private val calendar: Calendar = Calendar.getInstance(Locale.getDefault())
 
-    override fun getItem(position: Int): Fragment = MonthViewFragment()
+    override fun getItem(position: Int): Fragment = MonthViewFragment.newInstance(position)
 
     override fun getCount(): Int = this.calendar.getActualMaximum(Calendar.MONTH)
 }

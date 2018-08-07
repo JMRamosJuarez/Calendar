@@ -21,6 +21,7 @@
     </com.jmrj.calendar.SynchronizedScrollView>
 
     <com.jmrj.calendar.day.CurrentDayView
+        android:id="@+id/current_day_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"

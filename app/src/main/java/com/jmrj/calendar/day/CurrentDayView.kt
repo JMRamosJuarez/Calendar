@@ -8,7 +8,16 @@ import java.util.*
 
 internal class CurrentDayView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : View(context, attrs, defStyleAttr) {
 
-    private val currentTimeCalendar: Calendar by lazy { Calendar.getInstance() }
+    private val dayCalendar: Calendar by lazy {
+        val calendar: Calendar = Calendar.getInstance(Locale.getDefault())
+        calendar.set(Calendar.MONTH, Calendar.SEPTEMBER)
+        calendar.set(Calendar.DAY_OF_MONTH, 1)
+        calendar.clear(Calendar.HOUR_OF_DAY)
+        calendar.clear(Calendar.MINUTE)
+        calendar.clear(Calendar.SECOND)
+        calendar.clear(Calendar.MILLISECOND)
+        calendar
+    }
 
     private val locale: Locale by lazy { Locale.getDefault() }
 
@@ -44,14 +53,23 @@ internal class CurrentDayView @JvmOverloads constructor(context: Context, attrs:
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         canvas.drawRect(0f, 0f, this.width * (1 / 7f), this.height.toFloat(), this.whitePaint)
-        val y = ((this.height / 4) + (this.dayNumberPaint.textSize / 3)) + 8
-        canvas.drawText(String.format("%02d", this.currentTimeCalendar.get(Calendar.DAY_OF_MONTH)), this.width / 14f, y, this.dayNumberPaint)
-        canvas.drawText(this.currentTimeCalendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, this.locale), this.width / 14f, (y + (this.dayNumberPaint.textSize / 3)) + 16, this.dayNamePaint)
+        this.drawDay(this.dayCalendar, canvas)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val w = resolveSize(0, widthMeasureSpec)
         val h = (w / 7)
         setMeasuredDimension(w, h + 12)
+    }
+
+    fun setDay(dayOfTheYear: Int) {
+        this.dayCalendar.set(Calendar.DAY_OF_YEAR, dayOfTheYear)
+        this.invalidate()
+    }
+
+    private fun drawDay(currentDayCalendar: Calendar, canvas: Canvas) {
+        val y = ((this.height / 4) + (this.dayNumberPaint.textSize / 3)) + 8
+        canvas.drawText(String.format("%02d", currentDayCalendar.get(Calendar.DAY_OF_MONTH)), this.width / 14f, y, this.dayNumberPaint)
+        canvas.drawText(currentDayCalendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, this.locale), this.width / 14f, (y + (this.dayNumberPaint.textSize / 3)) + 16, this.dayNamePaint)
     }
 }
