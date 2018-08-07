@@ -4,9 +4,9 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentStatePagerAdapter
 
-class DayFragmentPagerAdapter(fm: FragmentManager?) : FragmentStatePagerAdapter(fm) {
+class WeekFragmentPagerAdapter(fm: FragmentManager?) : FragmentStatePagerAdapter(fm) {
 
-    override fun getItem(position: Int): Fragment = DayViewFragment()
+    override fun getItem(position: Int): Fragment = WeekFragment()
 
     override fun getCount(): Int = 365
 }

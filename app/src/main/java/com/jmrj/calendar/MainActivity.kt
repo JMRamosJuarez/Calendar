@@ -12,7 +12,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-        this.view_pager.adapter = DayFragmentPagerAdapter(this.supportFragmentManager)
+//        this.view_pager.adapter = DayFragmentPagerAdapter(this.supportFragmentManager)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
