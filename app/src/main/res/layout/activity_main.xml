@@ -24,9 +24,8 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <fragment
-        android:id="@+id/main_fragment"
-        android:name="com.jmrj.calendar.MainWeekViewFragment"
+    <FrameLayout
+        android:id="@+id/main_fragment_container"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"

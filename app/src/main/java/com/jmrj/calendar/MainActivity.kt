@@ -1,18 +1,31 @@
 package com.jmrj.calendar
 
 import android.os.Bundle
+import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import com.jmrj.calendar.day.MainDayViewFragment
+import com.jmrj.calendar.month.MainMonthViewFragment
+import com.jmrj.calendar.week.MainWeekViewFragment
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
+
+    private val dayViewFragment: MainDayViewFragment
+        get() = MainDayViewFragment()
+
+    private val weekViewFragment: MainWeekViewFragment
+        get() = MainWeekViewFragment()
+
+    private val monthViewFragment: MainMonthViewFragment
+        get() = MainMonthViewFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-//        this.view_pager.adapter = DayFragmentPagerAdapter(this.supportFragmentManager)
+        replaceFragment(this.dayViewFragment)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -26,8 +39,27 @@ class MainActivity : AppCompatActivity() {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
-            R.id.action_settings -> true
+            R.id.action_day -> {
+                replaceFragment(this.dayViewFragment)
+                true
+            }
+            R.id.action_week -> {
+                replaceFragment(this.weekViewFragment)
+                true
+            }
+            R.id.action_month -> {
+                replaceFragment(this.monthViewFragment)
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
+
+    private fun replaceFragment(fragment: Fragment) {
+        this.supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.main_fragment_container, fragment)
+                .commit()
+    }
 }
+

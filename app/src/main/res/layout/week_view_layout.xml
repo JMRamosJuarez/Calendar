@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.jmrj.calendar.DaysOfTheWeekView
+    <com.jmrj.calendar.week.DaysOfTheWeekView
         android:id="@+id/days_of_week_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -13,7 +13,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.jmrj.calendar.SynchronizedScrollView
+    <com.jmrj.calendar.week.SynchronizedScrollView
         android:id="@+id/week_scroll_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -23,11 +23,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/days_of_week_view">
 
-        <com.jmrj.calendar.WeekView
+        <com.jmrj.calendar.week.WeekView
             android:id="@+id/week_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-    </com.jmrj.calendar.SynchronizedScrollView>
+    </com.jmrj.calendar.week.SynchronizedScrollView>
 
 </android.support.constraint.ConstraintLayout>

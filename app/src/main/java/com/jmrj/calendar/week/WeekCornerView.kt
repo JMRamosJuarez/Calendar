@@ -1,4 +1,4 @@
-package com.jmrj.calendar
+package com.jmrj.calendar.week
 
 import android.content.Context
 import android.graphics.Canvas

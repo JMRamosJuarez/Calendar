@@ -1,4 +1,4 @@
-package com.jmrj.calendar
+package com.jmrj.calendar.day
 
 import android.content.Context
 import android.graphics.Canvas
@@ -9,7 +9,7 @@ import android.util.AttributeSet
 import android.view.View
 import java.util.*
 
-class DayView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : View(context, attrs, defStyleAttr) {
+internal class DayView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : View(context, attrs, defStyleAttr) {
 
     private val linesPaint: Paint by lazy {
         val p = Paint()
