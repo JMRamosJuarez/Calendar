@@ -49,7 +49,7 @@ class DayView @JvmOverloads constructor(context: Context, attrs: AttributeSet? =
 
     private val currentTimeCalendar: Calendar by lazy { Calendar.getInstance() }
 
-    private val Y_PARTITION_RATION = 1 / 24f
+    private val Y_PARTITION_RATIO = 1 / 24f
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
@@ -66,21 +66,21 @@ class DayView @JvmOverloads constructor(context: Context, attrs: AttributeSet? =
 
     private fun drawHorizontalLines(canvas: Canvas) {
         for (i in 1 until 24) {
-            canvas.drawLine(this.width / 7f, this.height * (Y_PARTITION_RATION * i), this.width.toFloat() - (this.width.toFloat() / 28f), this.height * (Y_PARTITION_RATION * i), this.linesPaint)
-            canvas.drawText(String.format("%02d:00", i), this.width / 14f, (this.height * (Y_PARTITION_RATION * i)) + (this.textPaint.textSize / 3), this.textPaint)
+            canvas.drawLine(this.width / 7f, this.height * (Y_PARTITION_RATIO * i), this.width.toFloat() - (this.width.toFloat() / 28f), this.height * (Y_PARTITION_RATIO * i), this.linesPaint)
+            canvas.drawText(String.format("%02d:00", i), this.width / 14f, (this.height * (Y_PARTITION_RATIO * i)) + (this.textPaint.textSize / 3), this.textPaint)
         }
     }
 
     private fun drawCurrentHour(canvas: Canvas) {
-        canvas.drawLine(this.width / 7f, this.height * (Y_PARTITION_RATION * this.getCurrentHourInDecimalFormat()), this.width.toFloat() - (this.width.toFloat() / 28f), this.height * (Y_PARTITION_RATION * this.getCurrentHourInDecimalFormat()), this.currentHourPaint)
-        canvas.drawCircle((this.width / 7f) + 10f, this.height * (Y_PARTITION_RATION * this.getCurrentHourInDecimalFormat()), 10f, this.currentHourCirclePaint)
+        canvas.drawLine(this.width / 7f, this.height * (Y_PARTITION_RATIO * this.getCurrentHourInDecimalFormat()), this.width.toFloat() - (this.width.toFloat() / 28f), this.height * (Y_PARTITION_RATIO * this.getCurrentHourInDecimalFormat()), this.currentHourPaint)
+        canvas.drawCircle((this.width / 7f) + 10f, this.height * (Y_PARTITION_RATIO * this.getCurrentHourInDecimalFormat()), 10f, this.currentHourCirclePaint)
     }
 
     private fun drawEvent(startDateInDecimalFormat: Float, endDateInDecimalFormat: Float, paint: Paint, canvas: Canvas) {
         val eventRect = RectF(this.width / 7f,
-                this.height * (Y_PARTITION_RATION * startDateInDecimalFormat),
+                this.height * (Y_PARTITION_RATIO * startDateInDecimalFormat),
                 this.width - (this.width / 28f),
-                this.height * (Y_PARTITION_RATION * endDateInDecimalFormat))
+                this.height * (Y_PARTITION_RATIO * endDateInDecimalFormat))
         canvas.drawRect(eventRect, paint)
     }
 

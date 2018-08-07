@@ -4,7 +4,33 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ScrollView
+    <com.jmrj.calendar.DaysOfTheWeekView
+        android:id="@+id/days_of_week_view"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/week_scroll_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/hours_scroll_view"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.jmrj.calendar.SynchronizedScrollView
+        android:id="@+id/week_scroll_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scrollbars="none"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/hours_scroll_view"
+        app:layout_constraintTop_toBottomOf="@id/days_of_week_view">
+
+        <com.jmrj.calendar.WeekView
+            android:id="@+id/week_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </com.jmrj.calendar.SynchronizedScrollView>
+
+    <com.jmrj.calendar.SynchronizedScrollView
         android:id="@+id/hours_scroll_view"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
@@ -14,34 +40,10 @@
         app:layout_constraintTop_toBottomOf="@id/days_of_week_view">
 
         <com.jmrj.calendar.HoursView
-            android:id="@+id/sss"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="?attr/colorPrimary" />
-
-    </ScrollView>
-
-    <com.jmrj.calendar.DaysOfTheWeekView
-        android:id="@+id/days_of_week_view"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/hours_scroll_view"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ScrollView
-        android:id="@+id/week_scroll_view"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:scrollbars="none"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/hours_scroll_view"
-        app:layout_constraintTop_toBottomOf="@id/days_of_week_view">
-
-        <com.jmrj.calendar.WeekView
-            android:id="@+id/week_view"
+            android:id="@+id/hours_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-    </ScrollView>
+
+    </com.jmrj.calendar.SynchronizedScrollView>
 
 </android.support.constraint.ConstraintLayout>

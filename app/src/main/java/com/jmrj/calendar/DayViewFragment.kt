@@ -9,6 +9,6 @@ import android.view.ViewGroup
 class DayViewFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return inflater.inflate(R.layout.day_view_layout, container, false)
+        return inflater.inflate(R.layout.week_view_layout, container, false)
     }
 }
