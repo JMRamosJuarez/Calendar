@@ -6,8 +6,20 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
+import java.util.*
 
 class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : View(context, attrs, defStyleAttr) {
+
+    private val weekCalendar: Calendar by lazy {
+        val calendar: Calendar = Calendar.getInstance(Locale.getDefault())
+        calendar.set(Calendar.MONTH, Calendar.JANUARY)
+        calendar.set(Calendar.DAY_OF_MONTH, 1)
+        calendar.clear(Calendar.HOUR_OF_DAY)
+        calendar.clear(Calendar.MINUTE)
+        calendar.clear(Calendar.SECOND)
+        calendar.clear(Calendar.MILLISECOND)
+        calendar
+    }
 
     private val X_PARTITION_RATIO = 1 / 7f
     private val Y_PARTITION_RATIO = 1 / 24f
@@ -45,5 +57,10 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             //Horizontal
             canvas.drawLine(0f, this.height * (Y_PARTITION_RATIO * i), this.width.toFloat(), this.height * (Y_PARTITION_RATIO * i), this.linesPaint)
         }
+    }
+
+    fun setWeekOfTheYear(weekOfTheYear: Int) {
+        this.weekCalendar.set(Calendar.WEEK_OF_YEAR, weekOfTheYear)
+        this.invalidate()
     }
 }
