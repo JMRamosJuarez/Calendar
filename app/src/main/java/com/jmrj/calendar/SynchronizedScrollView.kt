@@ -1,4 +1,4 @@
-package com.jmrj.calendar.week
+package com.jmrj.calendar
 
 import android.content.Context
 import android.util.AttributeSet

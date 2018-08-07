@@ -1,4 +1,4 @@
-package com.jmrj.calendar.week
+package com.jmrj.calendar
 
 object ScrollSyncronizer {
 
