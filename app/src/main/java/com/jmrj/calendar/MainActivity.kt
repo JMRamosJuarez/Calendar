@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-        replaceFragment(this.dayViewFragment)
+        replaceFragment(this.weekViewFragment)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

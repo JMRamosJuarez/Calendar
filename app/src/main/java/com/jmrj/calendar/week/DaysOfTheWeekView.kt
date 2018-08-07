@@ -11,10 +11,12 @@ import java.util.*
 
 class DaysOfTheWeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : View(context, attrs, defStyleAttr) {
 
+    private val locale: Locale by lazy { Locale.getDefault() }
+
     private val weekCalendar: Calendar by lazy {
-        val calendar: Calendar = Calendar.getInstance(Locale.getDefault())
-        calendar.set(Calendar.MONTH, Calendar.JANUARY)
-        calendar.set(Calendar.DAY_OF_MONTH, 1)
+        val calendar: Calendar = Calendar.getInstance(this.locale)
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY)
+        calendar.clear(Calendar.HOUR)
         calendar.clear(Calendar.HOUR_OF_DAY)
         calendar.clear(Calendar.MINUTE)
         calendar.clear(Calendar.SECOND)
@@ -22,6 +24,28 @@ class DaysOfTheWeekView @JvmOverloads constructor(context: Context, attrs: Attri
         calendar
     }
 
+    private val mutableWeekCalendar: Calendar by lazy {
+        val calendar: Calendar = Calendar.getInstance(this.locale)
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY)
+        calendar.clear(Calendar.HOUR)
+        calendar.clear(Calendar.HOUR_OF_DAY)
+        calendar.clear(Calendar.MINUTE)
+        calendar.clear(Calendar.SECOND)
+        calendar.clear(Calendar.MILLISECOND)
+        calendar
+    }
+
+//    private val mutableCalendar: Calendar by lazy {
+//        val calendar: Calendar = Calendar.getInstance(this.locale)
+//        calendar.set(Calendar.MONTH, Calendar.JANUARY)
+//        calendar.set(Calendar.DAY_OF_MONTH, 1)
+//        calendar.clear(Calendar.HOUR)
+//        calendar.clear(Calendar.HOUR_OF_DAY)
+//        calendar.clear(Calendar.MINUTE)
+//        calendar.clear(Calendar.SECOND)
+//        calendar.clear(Calendar.MILLISECOND)
+//        calendar
+//    }
 
     private val X_PARTITION_RATIO = 1 / 7f
     private val Y_PARTITION_RATIO = 1 / 24f
@@ -69,14 +93,23 @@ class DaysOfTheWeekView @JvmOverloads constructor(context: Context, attrs: Attri
     }
 
     private fun drawVerticalLines(canvas: Canvas) {
+
+        this.mutableWeekCalendar.timeInMillis = this.weekCalendar.timeInMillis
+
         for (i in 0 until 8) {
             //Vertical
             canvas.drawLine(this.width * (X_PARTITION_RATIO * i), 0f, this.width * (X_PARTITION_RATIO * i), this.height.toFloat(), this.linesPaint)
+
             val left = this.width.toFloat() * (X_PARTITION_RATIO * i)
             val right = this.width.toFloat() * (X_PARTITION_RATIO * (i + 1))
             val area = RectF(left + 1f, 1f, right - 1f, this.height.toFloat() - 1f)
-            canvas.drawText(String.format("%02d", i), area.centerX(), area.centerY(), this.dayNumberPaint)
-            canvas.drawText("lun.", area.centerX(), area.centerY() + (this.dayNumberPaint.textSize / 3f) + 16f, this.dayNamePaint)
+
+            val day = this.mutableWeekCalendar.get(Calendar.DAY_OF_MONTH)
+
+            canvas.drawText(String.format("%02d", day), area.centerX(), area.centerY(), this.dayNumberPaint)
+            canvas.drawText(this.mutableWeekCalendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, this.locale), area.centerX(), area.centerY() + (this.dayNumberPaint.textSize / 3f) + 16f, this.dayNamePaint)
+
+            this.mutableWeekCalendar.add(Calendar.DAY_OF_YEAR, 1)
         }
     }
 
@@ -86,7 +119,7 @@ class DaysOfTheWeekView @JvmOverloads constructor(context: Context, attrs: Attri
 
     fun setWeekOfTheYear(weekOfTheYear: Int) {
         this.weekCalendar.set(Calendar.WEEK_OF_YEAR, weekOfTheYear)
-
+        this.mutableWeekCalendar.set(Calendar.WEEK_OF_YEAR, weekOfTheYear)
         this.invalidate()
     }
 }

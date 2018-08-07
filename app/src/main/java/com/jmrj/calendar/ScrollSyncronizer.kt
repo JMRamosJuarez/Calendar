@@ -9,7 +9,9 @@ object ScrollSyncronizer {
 
     fun register(s: SyncronizableScroll) {
         s.onScrollSync(mOffSetX, mOffSetY)
-        items.add(s)
+        if (!items.contains(s)) {
+            items.add(s)
+        }
     }
 
     fun unRegister(s: SyncronizableScroll) {
