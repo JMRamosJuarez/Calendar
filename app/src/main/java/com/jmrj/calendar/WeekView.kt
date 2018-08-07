@@ -41,7 +41,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     }
 
     private fun drawHorizontalLines(canvas: Canvas) {
-        for (i in 0 until 24) {
+        for (i in 1 until 24) {
             //Horizontal
             canvas.drawLine(0f, this.height * (Y_PARTITION_RATIO * i), this.width.toFloat(), this.height * (Y_PARTITION_RATIO * i), this.linesPaint)
         }
