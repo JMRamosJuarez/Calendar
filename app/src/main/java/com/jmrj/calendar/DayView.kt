@@ -15,7 +15,7 @@ class DayView @JvmOverloads constructor(context: Context, attrs: AttributeSet? =
         val p = Paint()
         p.color = Color.DKGRAY
         p.isAntiAlias = true
-        p.style = Paint.Style.STROKE
+        p.style = Paint.Style.FILL
         p.strokeWidth = 0.5f
         p
     }
