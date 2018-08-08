@@ -193,7 +193,6 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         constructor(l: Float, t: Float, r: Float, b: Float) : super(l, t, r, b)
         constructor(rect: Rect) : super(rect)
         constructor(rectF: RectF) : super(rectF)
-
         var isCurrentDayOfTheWeek: Boolean = false
     }
 }

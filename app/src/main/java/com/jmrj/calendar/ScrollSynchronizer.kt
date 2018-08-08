@@ -24,6 +24,7 @@ object ScrollSynchronizer {
         this.mOffSetX = 0
         this.mOffSetY = 0
         ITEMS.clear()
+        this.shouldScrollToCurrentHour = true
     }
 
     fun update(s: SynchronizableScroll, x: Int, y: Int) {
