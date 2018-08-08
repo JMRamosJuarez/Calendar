@@ -36,6 +36,8 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         calendar
     }
 
+    private var monthOfTheYear: Int = 0
+
     private val linesPaint: Paint by lazy {
         val p = Paint()
         p.isAntiAlias = true
@@ -84,6 +86,16 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         p.isAntiAlias = true
         p.style = Paint.Style.FILL
         p.color = Color.GRAY
+        p.textAlign = Paint.Align.CENTER
+        p.textSize = 18f
+        p
+    }
+
+    private val dayOfCurrentMonthTextPaint: Paint by lazy {
+        val p = Paint()
+        p.isAntiAlias = true
+        p.style = Paint.Style.FILL
+        p.color = Color.BLUE
         p.textAlign = Paint.Align.CENTER
         p.textSize = 18f
         p
@@ -143,7 +155,6 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         this.drawAreas(areas, canvas)
 
         this.drawHorizontalLines(marginTop, canvas)
-
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
@@ -161,8 +172,10 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         for (index in areas.indices) {
             val area = areas[index]
             val dayOfTheMonth = this.mutableMonthCalendar.get(Calendar.DAY_OF_MONTH)
+            val month = this.mutableMonthCalendar.get(Calendar.MONTH)
             canvas.drawRect(area, if (area.contains(this.selectedX, this.selectedY)) this.selectedDayPaint else this.dayPaint)
-            canvas.drawText("$dayOfTheMonth", area.left + 28f, area.top + 33.5f, this.grayTextPaint)
+            canvas.drawText("$dayOfTheMonth", area.left + 28f, area.top + 33.5f, if (month == this.monthOfTheYear) this.dayOfCurrentMonthTextPaint else this.grayTextPaint)
+//            canvas.drawText("$dayOfTheMonth", area.left + 28f, area.top + 33.5f, this.grayTextPaint)
             this.mutableMonthCalendar.add(Calendar.DAY_OF_YEAR, 1)
         }
     }
@@ -210,6 +223,7 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
     }
 
     fun setMonth(monthOfTheYear: Int) {
+        this.monthOfTheYear = monthOfTheYear
         this.monthCalendar.set(Calendar.MONTH, monthOfTheYear)
         this.mutableMonthCalendar.set(Calendar.MONTH, monthOfTheYear)
         this.invalidate()
