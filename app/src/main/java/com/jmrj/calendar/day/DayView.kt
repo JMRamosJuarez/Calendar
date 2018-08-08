@@ -7,6 +7,8 @@ import android.graphics.Paint
 import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.View
+import com.jmrj.calendar.ScrollSynchronizer
+import com.jmrj.calendar.SynchronizedScrollView
 import java.util.*
 
 internal class DayView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : View(context, attrs, defStyleAttr) {
@@ -49,6 +51,12 @@ internal class DayView @JvmOverloads constructor(context: Context, attrs: Attrib
 
     private val currentTimeCalendar: Calendar by lazy { Calendar.getInstance() }
 
+    private val currentDayOfTheYear: Int by lazy { this.currentTimeCalendar.get(Calendar.DAY_OF_YEAR) }
+
+    private var selectedDayOfTheYear: Int = 0
+
+    private var parentScrollView: SynchronizedScrollView? = null
+
     private val Y_PARTITION_RATIO = 1 / 24f
 
     override fun onDraw(canvas: Canvas) {
@@ -64,6 +72,20 @@ internal class DayView @JvmOverloads constructor(context: Context, attrs: Attrib
         setMeasuredDimension(w, h)
     }
 
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+        this.scrollToCurrentHour()
+    }
+
+    private fun scrollToCurrentHour() {
+        if (this.parentScrollView == null && this.isCurrentDay() && ScrollSynchronizer.shouldScrollToCurrentHour) {
+            ScrollSynchronizer.shouldScrollToCurrentHour = false
+            this.parentScrollView = this.parent as? SynchronizedScrollView
+            val y = (this.height.toFloat() * (Y_PARTITION_RATIO * this.getCurrentHourInDecimalFormat())).toInt() - (this.height.toFloat() * Y_PARTITION_RATIO).toInt()
+            this.parentScrollView?.onScrollSync(0, y)
+        }
+    }
+
     private fun drawHorizontalLines(canvas: Canvas) {
         for (i in 1 until 24) {
             canvas.drawLine(this.width / 7f, this.height * (Y_PARTITION_RATIO * i), this.width.toFloat() - (this.width.toFloat() / 28f), this.height * (Y_PARTITION_RATIO * i), this.linesPaint)
@@ -72,8 +94,10 @@ internal class DayView @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     private fun drawCurrentHour(canvas: Canvas) {
-        canvas.drawLine(this.width / 7f, this.height * (Y_PARTITION_RATIO * this.getCurrentHourInDecimalFormat()), this.width.toFloat() - (this.width.toFloat() / 28f), this.height * (Y_PARTITION_RATIO * this.getCurrentHourInDecimalFormat()), this.currentHourPaint)
-        canvas.drawCircle((this.width / 7f) + 10f, this.height * (Y_PARTITION_RATIO * this.getCurrentHourInDecimalFormat()), 10f, this.currentHourCirclePaint)
+        if (this.isCurrentDay()) {
+            canvas.drawLine(this.width / 7f, this.height * (Y_PARTITION_RATIO * this.getCurrentHourInDecimalFormat()), this.width.toFloat() - (this.width.toFloat() / 28f), this.height * (Y_PARTITION_RATIO * this.getCurrentHourInDecimalFormat()), this.currentHourPaint)
+            canvas.drawCircle((this.width / 7f) + 10f, this.height * (Y_PARTITION_RATIO * this.getCurrentHourInDecimalFormat()), 10f, this.currentHourCirclePaint)
+        }
     }
 
     private fun drawEvent(startDateInDecimalFormat: Float, endDateInDecimalFormat: Float, paint: Paint, canvas: Canvas) {
@@ -89,6 +113,13 @@ internal class DayView @JvmOverloads constructor(context: Context, attrs: Attrib
         val hours = this.currentTimeCalendar.get(Calendar.HOUR_OF_DAY)
         val result = (minutes * 100f) / 60f
         return hours + result
+    }
+
+    private fun isCurrentDay(): Boolean = this.currentDayOfTheYear == this.selectedDayOfTheYear
+
+    fun setDayOfTheYear(dayOfTheYear: Int) {
+        this.selectedDayOfTheYear = dayOfTheYear
+        this.invalidate()
     }
 
     private fun getHourInDecimalFormat(milliseconds: Long): Float {

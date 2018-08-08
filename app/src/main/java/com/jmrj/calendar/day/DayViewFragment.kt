@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import com.jmrj.calendar.R
 import kotlinx.android.synthetic.main.day_view_fragment_layout.*
-import java.util.*
 
 internal class DayViewFragment : Fragment() {
 
@@ -31,5 +30,6 @@ internal class DayViewFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val day = this.arguments?.getInt(DAY_OF_THE_YEAR, 0) ?: 0
         this.current_day_view.setDay(day)
+        this.day_view.setDayOfTheYear(day)
     }
 }
