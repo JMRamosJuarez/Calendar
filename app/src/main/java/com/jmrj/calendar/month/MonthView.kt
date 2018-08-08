@@ -36,6 +36,11 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         calendar
     }
 
+    private val currentDayCalendar: Calendar by lazy { Calendar.getInstance(Locale.getDefault()) }
+
+    private val currentMonth: Int by lazy { this.currentDayCalendar.get(Calendar.MONTH) }
+    private val currentDay: Int by lazy { this.currentDayCalendar.get(Calendar.DAY_OF_MONTH) }
+
     private var monthOfTheYear: Int = 0
 
     private val linesPaint: Paint by lazy {
@@ -174,8 +179,10 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
             val dayOfTheMonth = this.mutableMonthCalendar.get(Calendar.DAY_OF_MONTH)
             val month = this.mutableMonthCalendar.get(Calendar.MONTH)
             canvas.drawRect(area, if (area.contains(this.selectedX, this.selectedY)) this.selectedDayPaint else this.dayPaint)
-            canvas.drawText("$dayOfTheMonth", area.left + 28f, area.top + 33.5f, if (month == this.monthOfTheYear) this.dayOfCurrentMonthTextPaint else this.grayTextPaint)
-//            canvas.drawText("$dayOfTheMonth", area.left + 28f, area.top + 33.5f, this.grayTextPaint)
+            if (this.isCurrentDate(month, dayOfTheMonth)) {
+                canvas.drawCircle(area.left + 28f, area.top + 28, this.grayTextPaint.textSize, this.circlePaint)
+            }
+            canvas.drawText("$dayOfTheMonth", area.left + 28f, area.top + 33.5f, if (this.isCurrentDate(month, dayOfTheMonth)) this.whiteTextPaint else if (month == this.monthOfTheYear) this.dayOfCurrentMonthTextPaint else this.grayTextPaint)
             this.mutableMonthCalendar.add(Calendar.DAY_OF_YEAR, 1)
         }
     }
@@ -220,6 +227,10 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
             6 -> "S"
             else -> "N"
         }
+    }
+
+    private fun isCurrentDate(month: Int, day: Int) : Boolean {
+        return this.currentMonth == month && this.currentDay == day && month == this.monthOfTheYear
     }
 
     fun setMonth(monthOfTheYear: Int) {
