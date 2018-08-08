@@ -18,6 +18,12 @@ object ScrollSyncronizer {
         items.remove(s)
     }
 
+    fun unRegisterAll() {
+        this.mOffSetX = 0
+        this.mOffSetY = 0
+        items.clear()
+    }
+
     fun update(s: SyncronizableScroll, x: Int, y: Int) {
         mOffSetX = x
         mOffSetY = y

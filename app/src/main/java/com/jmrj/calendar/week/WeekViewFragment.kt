@@ -30,5 +30,6 @@ class WeekViewFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val week = this.arguments?.getInt(WEEK_OF_THE_YEAR, 0) ?: 0
         this.days_of_week_view.setWeekOfTheYear(week)
+        this.week_view.setWeekOfTheYear(week)
     }
 }
