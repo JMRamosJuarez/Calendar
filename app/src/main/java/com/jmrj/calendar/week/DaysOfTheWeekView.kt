@@ -35,18 +35,6 @@ class DaysOfTheWeekView @JvmOverloads constructor(context: Context, attrs: Attri
         calendar
     }
 
-//    private val mutableCalendar: Calendar by lazy {
-//        val calendar: Calendar = Calendar.getInstance(this.locale)
-//        calendar.set(Calendar.MONTH, Calendar.JANUARY)
-//        calendar.set(Calendar.DAY_OF_MONTH, 1)
-//        calendar.clear(Calendar.HOUR)
-//        calendar.clear(Calendar.HOUR_OF_DAY)
-//        calendar.clear(Calendar.MINUTE)
-//        calendar.clear(Calendar.SECOND)
-//        calendar.clear(Calendar.MILLISECOND)
-//        calendar
-//    }
-
     private val X_PARTITION_RATIO = 1 / 7f
     private val Y_PARTITION_RATIO = 1 / 24f
 

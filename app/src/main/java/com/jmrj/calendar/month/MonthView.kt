@@ -10,10 +10,25 @@ import java.util.*
 
 class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : View(context, attrs, defStyleAttr) {
 
+    private val locale: Locale by lazy { Locale.getDefault() }
+
     private val monthCalendar: Calendar by lazy {
-        val calendar: Calendar = Calendar.getInstance(Locale.getDefault())
-        calendar.set(Calendar.MONTH, Calendar.JANUARY)
-        calendar.set(Calendar.DAY_OF_MONTH, 1)
+        val calendar: Calendar = Calendar.getInstance(this.locale)
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY)
+        calendar.set(Calendar.WEEK_OF_MONTH, 1)
+        calendar.clear(Calendar.HOUR)
+        calendar.clear(Calendar.HOUR_OF_DAY)
+        calendar.clear(Calendar.MINUTE)
+        calendar.clear(Calendar.SECOND)
+        calendar.clear(Calendar.MILLISECOND)
+        calendar
+    }
+
+    private val mutableMonthCalendar: Calendar by lazy {
+        val calendar: Calendar = Calendar.getInstance(this.locale)
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY)
+        calendar.set(Calendar.WEEK_OF_MONTH, 1)
+        calendar.clear(Calendar.HOUR)
         calendar.clear(Calendar.HOUR_OF_DAY)
         calendar.clear(Calendar.MINUTE)
         calendar.clear(Calendar.SECOND)
@@ -125,7 +140,7 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
 
         this.drawDaysOfTheWeek(marginTop, canvas)
 
-        this.drawAreas(areas, this.monthCalendar.get(Calendar.DAY_OF_WEEK) - 1, this.monthCalendar.getActualMaximum(Calendar.DAY_OF_MONTH) - 1, canvas)
+        this.drawAreas(areas, canvas)
 
         this.drawHorizontalLines(marginTop, canvas)
 
@@ -141,13 +156,14 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         }
     }
 
-    private fun drawAreas(areas: List<RectF>, firstDayOfTheWeek: Int, daysInCurrentMonth: Int, canvas: Canvas) {
+    private fun drawAreas(areas: List<RectF>, canvas: Canvas) {
+        this.mutableMonthCalendar.timeInMillis = this.monthCalendar.timeInMillis
         for (index in areas.indices) {
-            if (index in firstDayOfTheWeek..(daysInCurrentMonth + firstDayOfTheWeek)) {
-                val area = areas[index]
-                canvas.drawRect(area, if (area.contains(this.selectedX, this.selectedY)) this.selectedDayPaint else this.dayPaint)
-                canvas.drawText("${(index - firstDayOfTheWeek) + 1}", area.left + 28f, area.top + 33.5f, this.grayTextPaint)
-            }
+            val area = areas[index]
+            val dayOfTheMonth = this.mutableMonthCalendar.get(Calendar.DAY_OF_MONTH)
+            canvas.drawRect(area, if (area.contains(this.selectedX, this.selectedY)) this.selectedDayPaint else this.dayPaint)
+            canvas.drawText("$dayOfTheMonth", area.left + 28f, area.top + 33.5f, this.grayTextPaint)
+            this.mutableMonthCalendar.add(Calendar.DAY_OF_YEAR, 1)
         }
     }
 
@@ -169,7 +185,6 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
     private fun drawVerticalLines(marginTop: Float, canvas: Canvas) {
         for (i in 0 until 8) {
             //Vertical
-            Calendar.JANUARY
             canvas.drawLine(this.width * (X_PARTITION_RATIO * i), marginTop, this.width * (X_PARTITION_RATIO * i), this.height.toFloat(), this.linesPaint)
         }
     }
@@ -196,6 +211,7 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
 
     fun setMonth(monthOfTheYear: Int) {
         this.monthCalendar.set(Calendar.MONTH, monthOfTheYear)
+        this.mutableMonthCalendar.set(Calendar.MONTH, monthOfTheYear)
         this.invalidate()
     }
 }
