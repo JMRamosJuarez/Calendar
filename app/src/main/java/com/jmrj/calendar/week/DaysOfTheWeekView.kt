@@ -35,6 +35,14 @@ class DaysOfTheWeekView @JvmOverloads constructor(context: Context, attrs: Attri
         calendar
     }
 
+    private val currentTimeCalendar: Calendar by lazy { Calendar.getInstance() }
+
+    private val currentDayOfTheWeek: Int by lazy { this.currentTimeCalendar.get(Calendar.DAY_OF_WEEK) }
+
+    private val currentWeek: Int by lazy { this.currentTimeCalendar.get(Calendar.WEEK_OF_YEAR) }
+
+    private var selectedWeek: Int = 0
+
     private val X_PARTITION_RATIO = 1 / 7f
     private val Y_PARTITION_RATIO = 1 / 24f
 
@@ -47,7 +55,47 @@ class DaysOfTheWeekView @JvmOverloads constructor(context: Context, attrs: Attri
         p
     }
 
-    private val dayNumberPaint: Paint by lazy {
+    private val previousDayNumberPaint: Paint by lazy {
+        val p = Paint()
+        p.color = Color.LTGRAY
+        p.isAntiAlias = true
+        p.style = Paint.Style.FILL
+        p.textAlign = Paint.Align.CENTER
+        p.textSize = 48f
+        p
+    }
+
+    private val previousDayNamePaint: Paint by lazy {
+        val p = Paint()
+        p.color = Color.LTGRAY
+        p.isAntiAlias = true
+        p.style = Paint.Style.FILL
+        p.textAlign = Paint.Align.CENTER
+        p.textSize = 24f
+        p
+    }
+
+    private val currentDayNumberPaint: Paint by lazy {
+        val p = Paint()
+        p.color = Color.BLUE
+        p.isAntiAlias = true
+        p.style = Paint.Style.FILL
+        p.textAlign = Paint.Align.CENTER
+        p.textSize = 48f
+        p
+    }
+
+    private val currentDayNamePaint: Paint by lazy {
+        val p = Paint()
+        p.color = Color.BLUE
+        p.isAntiAlias = true
+        p.style = Paint.Style.FILL
+        p.textAlign = Paint.Align.CENTER
+        p.textSize = 24f
+        p
+    }
+
+    private val nextDayNumberPaint: Paint by lazy {
         val p = Paint()
         p.color = Color.DKGRAY
         p.isAntiAlias = true
@@ -57,7 +105,7 @@ class DaysOfTheWeekView @JvmOverloads constructor(context: Context, attrs: Attri
         p
     }
 
-    private val dayNamePaint: Paint by lazy {
+    private val nextDayNamePaint: Paint by lazy {
         val p = Paint()
         p.color = Color.DKGRAY
         p.isAntiAlias = true
@@ -90,12 +138,32 @@ class DaysOfTheWeekView @JvmOverloads constructor(context: Context, attrs: Attri
 
             val left = this.width.toFloat() * (X_PARTITION_RATIO * i)
             val right = this.width.toFloat() * (X_PARTITION_RATIO * (i + 1))
+
             val area = RectF(left + 1f, 1f, right - 1f, this.height.toFloat() - 1f)
 
             val day = this.mutableWeekCalendar.get(Calendar.DAY_OF_MONTH)
 
-            canvas.drawText(String.format("%02d", day), area.centerX(), area.centerY(), this.dayNumberPaint)
-            canvas.drawText(this.mutableWeekCalendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, this.locale), area.centerX(), area.centerY() + (this.dayNumberPaint.textSize / 3f) + 16f, this.dayNamePaint)
+            val isCurrentDayOfTheWeek = ((i + 1) == this.currentDayOfTheWeek) && this.selectedWeek == this.currentWeek
+
+            canvas.drawText(String.format("%02d", day),
+                    area.centerX(),
+                    area.centerY(),
+                    when {
+                        this.selectedWeek < this.currentWeek -> this.previousDayNumberPaint
+                        this.selectedWeek > this.currentWeek || (i + 1) > this.currentDayOfTheWeek -> this.nextDayNumberPaint
+                        isCurrentDayOfTheWeek -> this.currentDayNumberPaint
+                        else -> this.previousDayNumberPaint
+                    })
+
+            canvas.drawText(this.mutableWeekCalendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, this.locale),
+                    area.centerX(),
+                    area.centerY() + (this.previousDayNumberPaint.textSize / 3f) + 16f,
+                    when {
+                        this.selectedWeek < this.currentWeek -> this.previousDayNamePaint
+                        this.selectedWeek > this.currentWeek || (i + 1) > this.currentDayOfTheWeek -> this.nextDayNamePaint
+                        isCurrentDayOfTheWeek -> this.currentDayNamePaint
+                        else -> this.previousDayNamePaint
+                    })
 
             this.mutableWeekCalendar.add(Calendar.DAY_OF_YEAR, 1)
         }
@@ -106,6 +174,7 @@ class DaysOfTheWeekView @JvmOverloads constructor(context: Context, attrs: Attri
     }
 
     fun setWeekOfTheYear(weekOfTheYear: Int) {
+        this.selectedWeek = weekOfTheYear
         this.weekCalendar.set(Calendar.WEEK_OF_YEAR, weekOfTheYear)
         this.mutableWeekCalendar.set(Calendar.WEEK_OF_YEAR, weekOfTheYear)
         this.invalidate()
