@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.jmrj.calendar.R
-import com.jmrj.calendar.ScrollSyncronizer
+import com.jmrj.calendar.ScrollSynchronizer
 import kotlinx.android.synthetic.main.main_week_view_layout.*
 import java.util.*
 
@@ -26,6 +26,6 @@ class MainWeekViewFragment : Fragment() {
 
     override fun onDetach() {
         super.onDetach()
-        ScrollSyncronizer.unRegisterAll()
+        ScrollSynchronizer.unRegisterAll()
     }
 }

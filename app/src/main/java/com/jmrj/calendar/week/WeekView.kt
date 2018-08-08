@@ -98,7 +98,9 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
         this.drawAreas(areas, canvas)
 
-//        this.drawCurrentHour(canvas)
+        if (this.currentWeek == this.selectedWeek) {
+            this.drawCurrentHour(canvas)
+        }
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -145,8 +147,14 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     }
 
     private fun drawCurrentHour(canvas: Canvas) {
-        canvas.drawLine(this.width / 7f, this.height * (Y_PARTITION_RATIO * this.getCurrentHourInDecimalFormat()), this.width.toFloat() - (this.width.toFloat() / 28f), this.height * (Y_PARTITION_RATIO * this.getCurrentHourInDecimalFormat()), this.currentHourPaint)
-        canvas.drawCircle((this.width / 7f) + 10f, this.height * (Y_PARTITION_RATIO * this.getCurrentHourInDecimalFormat()), 10f, this.currentHourCirclePaint)
+        canvas.drawLine((this.width.toFloat() / 7f) * (this.currentDayOfTheWeek - 1),
+                this.height.toFloat() * (Y_PARTITION_RATIO * this.getCurrentHourInDecimalFormat()),
+                (this.width.toFloat() / 7f) * (this.currentDayOfTheWeek),
+                this.height.toFloat() * (Y_PARTITION_RATIO * this.getCurrentHourInDecimalFormat()),
+                this.currentHourPaint)
+        canvas.drawCircle((this.width.toFloat() / 7f) * (this.currentDayOfTheWeek - 1),
+                this.height * (Y_PARTITION_RATIO * this.getCurrentHourInDecimalFormat()),
+                10f, this.currentHourCirclePaint)
     }
 
     private fun getCurrentHourInDecimalFormat(): Float {
@@ -167,6 +175,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         constructor(l: Float, t: Float, r: Float, b: Float) : super(l, t, r, b)
         constructor(rect: Rect) : super(rect)
         constructor(rectF: RectF) : super(rectF)
+
         var isCurrentDayOfTheWeek: Boolean = false
     }
 }
