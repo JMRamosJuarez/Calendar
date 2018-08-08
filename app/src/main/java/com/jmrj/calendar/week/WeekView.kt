@@ -4,6 +4,8 @@ import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
+import com.jmrj.calendar.ScrollSynchronizer
+import com.jmrj.calendar.SynchronizedScrollView
 import java.util.*
 
 class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : View(context, attrs, defStyleAttr) {
@@ -89,6 +91,8 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     private val daysAreas: List<ColumnRect>
         get() = this.createAreas()
 
+    private var parentScrollView: SynchronizedScrollView? = null
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         this.drawHorizontalLines(canvas)
@@ -107,6 +111,20 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         val w = resolveSize(0, widthMeasureSpec)
         val h = (w / 7) * 32
         setMeasuredDimension(w, h)
+    }
+
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+        this.scrollToCurrentHour()
+    }
+
+    private fun scrollToCurrentHour() {
+        if (this.parentScrollView == null && this.currentWeek == this.selectedWeek && ScrollSynchronizer.shouldScrollToCurrentHour) {
+            ScrollSynchronizer.shouldScrollToCurrentHour = false
+            this.parentScrollView = this.parent as? SynchronizedScrollView
+            val y = (this.height.toFloat() * (Y_PARTITION_RATIO * this.getCurrentHourInDecimalFormat())).toInt() - (this.height.toFloat() * Y_PARTITION_RATIO).toInt()
+            this.parentScrollView?.onScrollSync(0, y)
+        }
     }
 
     private fun drawAreas(areas: List<ColumnRect>, canvas: Canvas) {
@@ -175,6 +193,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         constructor(l: Float, t: Float, r: Float, b: Float) : super(l, t, r, b)
         constructor(rect: Rect) : super(rect)
         constructor(rectF: RectF) : super(rectF)
+
         var isCurrentDayOfTheWeek: Boolean = false
     }
 }

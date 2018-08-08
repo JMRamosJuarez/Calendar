@@ -117,7 +117,7 @@ class DaysOfTheWeekView @JvmOverloads constructor(context: Context, attrs: Attri
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        this.drawVerticalLines(canvas)
+        this.drawDaysOfTheWeek(canvas)
         this.drawBottomLine(canvas)
     }
 
@@ -128,12 +128,12 @@ class DaysOfTheWeekView @JvmOverloads constructor(context: Context, attrs: Attri
         setMeasuredDimension(w, rh.toInt())
     }
 
-    private fun drawVerticalLines(canvas: Canvas) {
+    private fun drawDaysOfTheWeek(canvas: Canvas) {
 
         this.mutableWeekCalendar.timeInMillis = this.weekCalendar.timeInMillis
 
         for (i in 0 until 8) {
-            //Vertical
+
             canvas.drawLine(this.width * (X_PARTITION_RATIO * i), 0f, this.width * (X_PARTITION_RATIO * i), this.height.toFloat(), this.linesPaint)
 
             val left = this.width.toFloat() * (X_PARTITION_RATIO * i)
@@ -157,7 +157,7 @@ class DaysOfTheWeekView @JvmOverloads constructor(context: Context, attrs: Attri
 
             canvas.drawText(this.mutableWeekCalendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, this.locale),
                     area.centerX(),
-                    area.centerY() + (this.previousDayNumberPaint.textSize / 3f) + 16f,
+                    area.centerY() + (this.previousDayNamePaint.textSize / 3f) + 16f,
                     when {
                         this.selectedWeek < this.currentWeek -> this.previousDayNamePaint
                         this.selectedWeek > this.currentWeek || (i + 1) > this.currentDayOfTheWeek -> this.nextDayNamePaint

@@ -4,6 +4,8 @@ object ScrollSynchronizer {
 
     private val ITEMS: MutableList<SynchronizableScroll> = mutableListOf()
 
+    var shouldScrollToCurrentHour: Boolean = true
+
     private var mOffSetX = 0
     private var mOffSetY = 0
 

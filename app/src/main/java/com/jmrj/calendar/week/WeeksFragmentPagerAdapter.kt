@@ -2,10 +2,10 @@ package com.jmrj.calendar.week
 
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentStatePagerAdapter
+import com.jmrj.calendar.SmartFragmentStatePagerAdapter
 import java.util.*
 
-class WeeksFragmentPagerAdapter(fm: FragmentManager?) : FragmentStatePagerAdapter(fm) {
+class WeeksFragmentPagerAdapter(fm: FragmentManager?) : SmartFragmentStatePagerAdapter(fm) {
 
     private val calendar: Calendar = Calendar.getInstance(Locale.getDefault())
 
