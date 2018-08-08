@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.jmrj.calendar.R
-import com.jmrj.calendar.ScrollSynchronizer
 import kotlinx.android.synthetic.main.main_month_view_fragment_layout.*
 import java.util.*
 
@@ -22,10 +21,5 @@ class MainMonthViewFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         this.months_view_pager.adapter = MonthsFragmentPagerAdapter(this.childFragmentManager)
         this.months_view_pager.currentItem = this.calendar.get(Calendar.MONTH)
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        ScrollSynchronizer.unRegisterAll()
     }
 }

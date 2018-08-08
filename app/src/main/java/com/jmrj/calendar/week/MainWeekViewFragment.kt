@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.jmrj.calendar.R
-import com.jmrj.calendar.ScrollSynchronizer
 import kotlinx.android.synthetic.main.main_week_view_layout.*
 import java.util.*
 
@@ -25,10 +24,5 @@ class MainWeekViewFragment : Fragment() {
         this.weeks_view_pager.adapter = this.adapter
         val item: Int = this.calendar.get(Calendar.WEEK_OF_YEAR)
         this.weeks_view_pager.currentItem = item
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        ScrollSynchronizer.unRegisterAll()
     }
 }

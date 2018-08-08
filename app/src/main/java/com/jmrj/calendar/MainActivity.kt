@@ -56,6 +56,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun replaceFragment(fragment: Fragment) {
+        ScrollSynchronizer.unRegisterAll()
         this.supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.main_fragment_container, fragment)
