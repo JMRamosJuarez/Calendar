@@ -2,7 +2,7 @@ package com.jmrj.calendar
 
 object ScrollSynchronizer {
 
-    private val ITEMS: MutableList<SynchronizableScroll> = mutableListOf()
+    private val scrolls: MutableList<SynchronizableScroll> = mutableListOf()
 
     var shouldScrollToCurrentHour: Boolean = true
 
@@ -11,28 +11,28 @@ object ScrollSynchronizer {
 
     fun register(s: SynchronizableScroll) {
         s.onScrollSync(mOffSetX, mOffSetY)
-        if (!ITEMS.contains(s)) {
-            ITEMS.add(s)
+        if (!this.scrolls.contains(s)) {
+            this.scrolls.add(s)
         }
     }
 
     fun unRegister(s: SynchronizableScroll) {
-        ITEMS.remove(s)
+        this.scrolls.remove(s)
     }
 
     fun unRegisterAll() {
         this.mOffSetX = 0
         this.mOffSetY = 0
-        ITEMS.clear()
+        this.scrolls.clear()
         this.shouldScrollToCurrentHour = true
     }
 
     fun update(s: SynchronizableScroll, x: Int, y: Int) {
-        mOffSetX = x
-        mOffSetY = y
-        for (item in ITEMS) {
+        this.mOffSetX = x
+        this.mOffSetY = y
+        for (item in this.scrolls) {
             if (item != s) {
-                item.onScrollSync(mOffSetX, mOffSetY)
+                item.onScrollSync(this.mOffSetX, this.mOffSetY)
             }
         }
     }
