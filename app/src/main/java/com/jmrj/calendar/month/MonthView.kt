@@ -36,7 +36,9 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         calendar
     }
 
-    private val currentDayCalendar: Calendar by lazy { Calendar.getInstance(Locale.getDefault()) }
+    private val currentDayCalendar: Calendar by lazy { Calendar.getInstance(this.locale) }
+
+    private val daysOfTheWeekCalendar: Calendar by lazy { Calendar.getInstance(this.locale) }
 
     private val currentMonth: Int by lazy { this.currentDayCalendar.get(Calendar.MONTH) }
     private val currentDay: Int by lazy { this.currentDayCalendar.get(Calendar.DAY_OF_MONTH) }
@@ -218,14 +220,42 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
 
     private fun getDayOfTheWeek(index: Int): String {
         return when (index) {
-            0 -> "D"
-            1 -> "L"
-            2 -> "M"
-            3 -> "M"
-            4 -> "J"
-            5 -> "V"
-            6 -> "S"
-            else -> "N"
+            0 -> {
+                this.daysOfTheWeekCalendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY)
+                val dayName = this.daysOfTheWeekCalendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, this.locale)
+                dayName.first().toUpperCase().toString()
+            }
+            1 -> {
+                this.daysOfTheWeekCalendar.set(Calendar.DAY_OF_WEEK, Calendar.MONTH)
+                val dayName = this.daysOfTheWeekCalendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, this.locale)
+                dayName.first().toUpperCase().toString()
+            }
+            2 -> {
+                this.daysOfTheWeekCalendar.set(Calendar.DAY_OF_WEEK, Calendar.TUESDAY)
+                val dayName = this.daysOfTheWeekCalendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, this.locale)
+                dayName.first().toUpperCase().toString()
+            }
+            3 -> {
+                this.daysOfTheWeekCalendar.set(Calendar.DAY_OF_WEEK, Calendar.WEDNESDAY)
+                val dayName = this.daysOfTheWeekCalendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, this.locale)
+                dayName.first().toUpperCase().toString()
+            }
+            4 -> {
+                this.daysOfTheWeekCalendar.set(Calendar.DAY_OF_WEEK, Calendar.THURSDAY)
+                val dayName = this.daysOfTheWeekCalendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, this.locale)
+                dayName.first().toUpperCase().toString()
+            }
+            5 -> {
+                this.daysOfTheWeekCalendar.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY)
+                val dayName = this.daysOfTheWeekCalendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, this.locale)
+                dayName.first().toUpperCase().toString()
+            }
+            6 -> {
+                this.daysOfTheWeekCalendar.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY)
+                val dayName = this.daysOfTheWeekCalendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, this.locale)
+                dayName.first().toUpperCase().toString()
+            }
+            else -> "X"
         }
     }
 
