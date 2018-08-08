@@ -9,7 +9,7 @@ internal class DaysFragmentPagerAdapter(fm: FragmentManager?) : FragmentStatePag
 
     private val calendar: Calendar = Calendar.getInstance(Locale.getDefault())
 
-    override fun getItem(position: Int): Fragment = DayViewFragment.newInstance(position + 1)
+    override fun getItem(position: Int): Fragment = DayViewFragment.newInstance(position)
 
     override fun getCount(): Int = this.calendar.getActualMaximum(Calendar.DAY_OF_YEAR)
 }

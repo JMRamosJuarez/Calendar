@@ -28,7 +28,7 @@ class WeekViewFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val week = this.arguments?.getInt(WEEK_OF_THE_YEAR, 1) ?: 1
+        val week = this.arguments?.getInt(WEEK_OF_THE_YEAR, 0) ?: 0
         this.days_of_week_view.setWeekOfTheYear(week)
     }
 }

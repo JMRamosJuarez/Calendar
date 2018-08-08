@@ -29,7 +29,7 @@ internal class DayViewFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val day = this.arguments?.getInt(DAY_OF_THE_YEAR, 1) ?: 1
+        val day = this.arguments?.getInt(DAY_OF_THE_YEAR, 0) ?: 0
         this.current_day_view.setDay(day)
     }
 }
