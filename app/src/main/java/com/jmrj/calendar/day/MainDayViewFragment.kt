@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.jmrj.calendar.R
+import com.jmrj.calendar.ScrollSynchronizer
 import kotlinx.android.synthetic.main.main_day_view_fragment_layout.*
 import java.util.*
 
@@ -21,5 +22,10 @@ class MainDayViewFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         this.days_view_pager.adapter = DaysFragmentPagerAdapter(this.childFragmentManager)
         this.days_view_pager.currentItem = this.calendar.get(Calendar.DAY_OF_YEAR)
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        ScrollSynchronizer.unRegisterAll()
     }
 }
