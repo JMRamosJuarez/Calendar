@@ -225,17 +225,25 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
     private fun createEventRect(calendarEvent: CalendarEvent): CalendarEventRect {
 
-        val decimalStartTime = this.getHourInDecimalFormat(calendarEvent.startDate.time)
+        val startTime = calendarEvent.startDate.time
 
-        val decimalEndTime = this.getHourInDecimalFormat(calendarEvent.endDate.time)
+        val endTime = calendarEvent.endDate.time
+
+        val decimalStartTime = this.getHourInDecimalFormat(startTime)
+
+        val decimalEndTime = this.getHourInDecimalFormat(endTime)
 
         val top = (this.height * Y_PARTITION_RATIO) * decimalStartTime
 
         val bottom = (this.height * Y_PARTITION_RATIO) * decimalEndTime
 
-        val left = (this.width * X_PARTITION_RATIO) * this.getDayOfTheWeek(calendarEvent.startDate.time)
+        val decimalStartDay = this.getStartDaysInDecimalFormat(startTime)
 
-        val right = left + ((this.width * X_PARTITION_RATIO) * this.getDaysDiff(calendarEvent.startDate.time, calendarEvent.endDate.time))
+        val decimalEndDay = this.getEndDaysInDecimalFormat(endTime)
+
+        val left = (this.width * decimalStartDay)
+
+        val right = (this.width * decimalEndDay)
 
         val eventRect = CalendarEventRect(left, top, right, bottom)
 
@@ -291,38 +299,18 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         return hours + result
     }
 
-    private fun getDaysInDecimalFormat(milliseconds: Long): Float {
+    private fun getStartDaysInDecimalFormat(milliseconds: Long): Float {
+        val c = Calendar.getInstance()
+        c.timeInMillis = milliseconds
+        val days = (c.get(Calendar.DAY_OF_WEEK) - 1f) / 100f
+        return (days * 100f) / 7f
+    }
+
+    private fun getEndDaysInDecimalFormat(milliseconds: Long): Float {
         val c = Calendar.getInstance()
         c.timeInMillis = milliseconds
         val days = c.get(Calendar.DAY_OF_WEEK) / 100f
-        return 1 / ((days * 100f) / 7f)
-    }
-
-    private fun getDayOfTheWeek(milliseconds: Long): Int {
-        val c = Calendar.getInstance()
-        c.timeInMillis = milliseconds
-        return c.get(Calendar.DAY_OF_WEEK) - 1
-    }
-
-    private fun getDaysDiff(startTime: Long, endTime: Long): Int {
-
-        val startTimeCalendar = Calendar.getInstance()
-        startTimeCalendar.timeInMillis = startTime
-        startTimeCalendar.clear(Calendar.HOUR)
-        startTimeCalendar.clear(Calendar.HOUR_OF_DAY)
-        startTimeCalendar.clear(Calendar.MINUTE)
-        startTimeCalendar.clear(Calendar.SECOND)
-        startTimeCalendar.clear(Calendar.MILLISECOND)
-
-        val endTimeCalendar = Calendar.getInstance()
-        endTimeCalendar.timeInMillis = endTime
-        endTimeCalendar.clear(Calendar.HOUR)
-        endTimeCalendar.clear(Calendar.HOUR_OF_DAY)
-        endTimeCalendar.clear(Calendar.MINUTE)
-        endTimeCalendar.clear(Calendar.SECOND)
-        endTimeCalendar.clear(Calendar.MILLISECOND)
-
-        return (endTimeCalendar.get(Calendar.DAY_OF_MONTH) - startTimeCalendar.get(Calendar.DAY_OF_MONTH)) + 1
+        return (days * 100f) / 7f
     }
 
     fun setWeekOfTheYear(weekOfTheYear: Int, events: List<CalendarEvent>) {
