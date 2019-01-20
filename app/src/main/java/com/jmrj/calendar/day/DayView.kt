@@ -8,10 +8,7 @@ import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
-import com.jmrj.calendar.CalendarEvent
-import com.jmrj.calendar.CalendarEventRect
-import com.jmrj.calendar.ScrollSynchronizer
-import com.jmrj.calendar.SynchronizedScrollView
+import com.jmrj.calendar.*
 import java.util.*
 
 internal class DayView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : View(context, attrs, defStyleAttr) {
@@ -224,10 +221,5 @@ internal class DayView @JvmOverloads constructor(context: Context, attrs: Attrib
     fun setEvents(dayOfTheYear: Int, events: List<CalendarEvent>) {
         this.selectedDayOfTheYear = dayOfTheYear
         this.events = events
-    }
-
-    interface EventSelectedListener {
-
-        fun onEventSelected(calendarEvent: CalendarEvent)
     }
 }

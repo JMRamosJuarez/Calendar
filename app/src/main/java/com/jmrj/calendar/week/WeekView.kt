@@ -8,10 +8,7 @@ import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
-import com.jmrj.calendar.CalendarEvent
-import com.jmrj.calendar.CalendarEventRect
-import com.jmrj.calendar.ScrollSynchronizer
-import com.jmrj.calendar.SynchronizedScrollView
+import com.jmrj.calendar.*
 import java.util.*
 
 class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : View(context, attrs, defStyleAttr) {
@@ -98,6 +95,8 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
     var dayOfTheWeekSelectedListener: OnDayOfWeekSelectedListener? = null
 
+    var eventSelectedListener: EventSelectedListener? = null
+
     private val gestureDetector: GestureDetector by lazy {
         GestureDetector(this.context, object : GestureDetector.SimpleOnGestureListener() {
             override fun onDown(e: MotionEvent?): Boolean {
@@ -109,13 +108,21 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
                 val selectedX = e?.x ?: 0f
                 val selectedY = e?.y ?: 0f
 
-                val selectedRect = this@WeekView.daysAreas.find { rect ->
+                val selectedDayRect = this@WeekView.daysAreas.find { rect ->
                     rect.dayOfTheWeek > -1 && rect.contains(selectedX, selectedY)
                 }
 
-                val dayOfTheWeek = selectedRect?.dayOfTheWeek ?: -1
+                val selectedEventRect = this@WeekView.eventRects.find { rect ->
+                    rect.calendarEvent != null && rect.contains(selectedX, selectedY)
+                }
 
-                if (dayOfTheWeek > -1) {
+                val dayOfTheWeek = selectedDayRect?.dayOfTheWeek ?: -1
+
+                val event = selectedEventRect?.calendarEvent
+
+                if (event != null && this@WeekView.eventSelectedListener != null) {
+                    this@WeekView.eventSelectedListener?.onEventSelected(event)
+                } else if (dayOfTheWeek > -1) {
                     this@WeekView.dayOfTheWeekSelectedListener?.onDayOfWeekSelected(dayOfTheWeek)
                 }
 
@@ -290,10 +297,11 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         return c.get(Calendar.DAY_OF_WEEK)
     }
 
-    fun setWeekOfTheYear(weekOfTheYear: Int) {
+    fun setWeekOfTheYear(weekOfTheYear: Int, events: List<CalendarEvent>) {
         this.selectedWeek = weekOfTheYear
         this.weekCalendar.set(Calendar.WEEK_OF_YEAR, weekOfTheYear)
         this.mutableWeekCalendar.set(Calendar.WEEK_OF_YEAR, weekOfTheYear)
+        this.events = events
         this.invalidate()
     }
 

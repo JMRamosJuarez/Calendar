@@ -5,12 +5,11 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.jmrj.calendar.day.DayView
 import com.jmrj.calendar.day.DaysFragmentPagerAdapter
 import kotlinx.android.synthetic.main.main_day_view_fragment_layout.*
 import java.util.*
 
-class MainDayViewFragment : Fragment(), DayView.EventSelectedListener {
+class MainDayViewFragment : Fragment(), EventSelectedListener {
 
     private val calendar: Calendar by lazy { Calendar.getInstance(Locale.getDefault()) }
 

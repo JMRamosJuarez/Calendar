@@ -3,23 +3,21 @@ package com.jmrj.calendar.week
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.jmrj.calendar.DateSelectedListener
-import com.jmrj.calendar.R
+import com.jmrj.calendar.*
+import com.jmrj.calendar.EventsHolder.CREATOR.EVENTS_HOLDER
 import kotlinx.android.synthetic.main.week_view_layout.*
 import java.util.*
 
 class WeekViewFragment : Fragment(), WeekView.OnDayOfWeekSelectedListener {
 
     companion object {
-        private const val WEEK_OF_THE_YEAR = "WEEK_OF_THE_YEAR"
-        fun newInstance(weekOfTheYear: Int): WeekViewFragment {
+        fun newInstance(weekOfTheYear: Int, events: List<CalendarEvent>): WeekViewFragment {
             val f = WeekViewFragment()
             val arguments = Bundle().apply {
-                putInt(WEEK_OF_THE_YEAR, weekOfTheYear)
+                putParcelable(EVENTS_HOLDER, EventsHolder(weekOfTheYear, events))
             }
             f.arguments = arguments
             return f
@@ -28,10 +26,12 @@ class WeekViewFragment : Fragment(), WeekView.OnDayOfWeekSelectedListener {
 
     private var dateSelectedListener: DateSelectedListener? = null
 
+    private var eventSelectedListener: EventSelectedListener? = null
+
     private val locale: Locale by lazy { Locale.getDefault() }
 
-    private val week: Int
-        get() = this.arguments?.getInt(WEEK_OF_THE_YEAR, 0) ?: 0
+    private val eventsHolder: EventsHolder?
+        get() = this.arguments?.getParcelable(EVENTS_HOLDER)
 
     private val weekCalendar: Calendar by lazy {
         val calendar: Calendar = Calendar.getInstance(this.locale)
@@ -50,12 +50,14 @@ class WeekViewFragment : Fragment(), WeekView.OnDayOfWeekSelectedListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val selectedWeek = this.week
+        val eventsHolder = this.eventsHolder
+        val selectedWeek = eventsHolder?.index ?: 0
+        val events = eventsHolder?.events ?: emptyList()
         this.weekCalendar.set(Calendar.WEEK_OF_YEAR, selectedWeek)
-        Log.i("MONTH_IN_WEEK", this.weekCalendar.time.toString())
         this.days_of_week_view.setWeekOfTheYear(selectedWeek)
-        this.week_view.setWeekOfTheYear(selectedWeek)
+        this.week_view.setWeekOfTheYear(selectedWeek, events)
         this.week_view.dayOfTheWeekSelectedListener = this
+        this.week_view.eventSelectedListener = this.eventSelectedListener
     }
 
     override fun onAttach(context: Context?) {
@@ -64,11 +66,15 @@ class WeekViewFragment : Fragment(), WeekView.OnDayOfWeekSelectedListener {
         if (parentFragment is DateSelectedListener) {
             this.dateSelectedListener = parentFragment
         }
+        if (parentFragment is EventSelectedListener) {
+            this.eventSelectedListener = parentFragment
+        }
     }
 
     override fun onDetach() {
         super.onDetach()
         this.dateSelectedListener = null
+        this.eventSelectedListener = null
     }
 
     override fun onDayOfWeekSelected(dayOfWeek: Int) {
