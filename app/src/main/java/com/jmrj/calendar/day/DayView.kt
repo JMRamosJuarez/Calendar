@@ -143,7 +143,7 @@ internal class DayView @JvmOverloads constructor(context: Context, attrs: Attrib
         if (this.parentScrollView == null && this.isCurrentDay() && ScrollSynchronizer.shouldScrollToCurrentHour) {
             ScrollSynchronizer.shouldScrollToCurrentHour = false
             this.parentScrollView = this.parent as? SynchronizedScrollView
-            val y = (this.height.toFloat() * (Y_PARTITION_RATIO * this.getCurrentHourInDecimalFormat())).toInt() - (this.height.toFloat() * Y_PARTITION_RATIO).toInt()
+            val y = (this.height.toFloat() * (Y_PARTITION_RATIO * this.getHourInDecimalFormat(this.currentTimeCalendar.timeInMillis))).toInt() - (this.height.toFloat() * Y_PARTITION_RATIO).toInt()
             this.parentScrollView?.onScrollSync(0, y)
         }
     }
@@ -157,7 +157,7 @@ internal class DayView @JvmOverloads constructor(context: Context, attrs: Attrib
 
     private fun drawCurrentHour(canvas: Canvas) {
         if (this.isCurrentDay()) {
-            val currentHourDecimal = this.getCurrentHourInDecimalFormat()
+            val currentHourDecimal = this.getHourInDecimalFormat(this.currentTimeCalendar.timeInMillis)
             val y = this.height * (Y_PARTITION_RATIO * currentHourDecimal)
             canvas.drawLine(
                     this.width / 7f,
@@ -210,21 +210,14 @@ internal class DayView @JvmOverloads constructor(context: Context, attrs: Attrib
         }
     }
 
-    private fun getCurrentHourInDecimalFormat(): Float {
-        val minutes = this.currentTimeCalendar.get(Calendar.MINUTE) / 100f
-        val hours = this.currentTimeCalendar.get(Calendar.HOUR_OF_DAY)
-        val result = (minutes * 100f) / 60f
-        return hours + result
-    }
-
     private fun isCurrentDay(): Boolean = this.currentDayOfTheYear == this.selectedDayOfTheYear
 
     private fun getHourInDecimalFormat(milliseconds: Long): Float {
         val c = Calendar.getInstance()
         c.timeInMillis = milliseconds
         val minutes = c.get(Calendar.MINUTE) / 100f
-        val hours = c.get(Calendar.HOUR_OF_DAY)
         val result = (minutes * 100f) / 60f
+        val hours = c.get(Calendar.HOUR_OF_DAY)
         return hours + result
     }
 

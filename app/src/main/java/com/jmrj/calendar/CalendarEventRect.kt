@@ -9,4 +9,9 @@ class CalendarEventRect : RectF {
     constructor(rectF: RectF) : super(rectF)
 
     var calendarEvent: CalendarEvent? = null
+    var dayOfTheMonth: Int = -1
+    var dayOfTheWeek: Int = -1
+    var isCurrentDayOfMonth: Boolean = false
+    var isInCurrentMonth: Boolean = false
+    var isCurrentDayOfTheWeek: Boolean = false
 }

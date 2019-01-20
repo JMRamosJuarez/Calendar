@@ -1,11 +1,15 @@
 package com.jmrj.calendar.week
 
 import android.content.Context
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import com.jmrj.calendar.CalendarEvent
+import com.jmrj.calendar.CalendarEventRect
 import com.jmrj.calendar.ScrollSynchronizer
 import com.jmrj.calendar.SynchronizedScrollView
 import java.util.*
@@ -82,11 +86,13 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         p
     }
 
-    private val dayPaint: Paint by lazy {
+    private val whiteTextPaint: Paint by lazy {
         val p = Paint()
+        p.color = Color.WHITE
         p.isAntiAlias = true
         p.style = Paint.Style.FILL
-        p.color = Color.TRANSPARENT
+        p.textAlign = Paint.Align.CENTER
+        p.textSize = 24f
         p
     }
 
@@ -122,7 +128,11 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         })
     }
 
-    private val daysAreas: List<ColumnRect> by lazy { this.createAreas() }
+    private val daysAreas: List<CalendarEventRect> by lazy { this.createAreas() }
+
+    private var events: List<CalendarEvent> = emptyList()
+
+    private var eventRects: List<CalendarEventRect> = emptyList()
 
     private var parentScrollView: SynchronizedScrollView? = null
 
@@ -133,7 +143,15 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
         this.drawVerticalLines(canvas)
 
-        this.drawAreas(this.daysAreas, canvas)
+        this.drawCurrentDayOfWeekColumn(this.daysAreas, canvas)
+
+        if (this.eventRects.isEmpty()) {
+            this.eventRects = this.createEventRects(this.events)
+        }
+
+        for (eventR in this.eventRects) {
+            this.drawEventRect(eventR, canvas)
+        }
 
         if (this.currentWeek == this.selectedWeek) {
             this.drawCurrentHour(canvas)
@@ -159,33 +177,76 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         if (this.parentScrollView == null && this.currentWeek == this.selectedWeek && ScrollSynchronizer.shouldScrollToCurrentHour) {
             ScrollSynchronizer.shouldScrollToCurrentHour = false
             this.parentScrollView = this.parent as? SynchronizedScrollView
-            val y = (this.height.toFloat() * (Y_PARTITION_RATIO * this.getCurrentHourInDecimalFormat())).toInt() - (this.height.toFloat() * Y_PARTITION_RATIO).toInt()
+            val y = (this.height.toFloat() * (Y_PARTITION_RATIO * this.getHourInDecimalFormat(this.currentTimeCalendar.timeInMillis))).toInt() - (this.height.toFloat() * Y_PARTITION_RATIO).toInt()
             this.parentScrollView?.onScrollSync(0, y)
         }
     }
 
-    private fun drawAreas(areas: List<ColumnRect>, canvas: Canvas) {
+    private fun drawCurrentDayOfWeekColumn(areas: List<CalendarEventRect>, canvas: Canvas) {
         for (index in areas.indices) {
             val area = areas[index]
-            canvas.drawRect(area, if (area.isCurrentDayOfTheWeek) this.currentDayOfWeekPaint else this.dayPaint)
+            if (area.isCurrentDayOfTheWeek) {
+                canvas.drawRect(area, this.currentDayOfWeekPaint)
+            }
         }
     }
 
-    private fun createAreas(): List<ColumnRect> {
-        val areas: MutableList<ColumnRect> = mutableListOf()
+    private fun createAreas(): List<CalendarEventRect> {
+        val areas: MutableList<CalendarEventRect> = mutableListOf()
         for (i in 0 until 24) {
             val top = this.height * (Y_PARTITION_RATIO * i)
             val bottom = this.height * (Y_PARTITION_RATIO * (i + 1f))
             for (j in 0 until 7) {
                 val left = this.width * (X_PARTITION_RATIO * j)
                 val right = this.width * (X_PARTITION_RATIO * (j + 1f))
-                val rect = ColumnRect(left + 1f, top + 1f, right - 1f, bottom - 1f)
+                val rect = CalendarEventRect(left + 1f, top + 1f, right - 1f, bottom - 1f)
                 rect.isCurrentDayOfTheWeek = ((j + 1) == this.currentDayOfTheWeek) && this.selectedWeek == this.currentWeek
                 rect.dayOfTheWeek = j + 1
                 areas.add(rect)
             }
         }
         return areas
+    }
+
+    private fun createEventRects(calendarEvents: List<CalendarEvent>): List<CalendarEventRect> {
+        val result: MutableList<CalendarEventRect> = mutableListOf()
+        for (event in calendarEvents) {
+            result.add(this.createEventRect(event))
+        }
+        return result
+    }
+
+    private fun createEventRect(calendarEvent: CalendarEvent): CalendarEventRect {
+
+        val decimalStartTime = this.getHourInDecimalFormat(calendarEvent.startDate.time)
+
+        val decimalEndTime = this.getHourInDecimalFormat(calendarEvent.endDate.time)
+
+        val top = this.height * (Y_PARTITION_RATIO * decimalStartTime)
+
+        val bottom = this.height * (Y_PARTITION_RATIO * decimalEndTime)
+
+        val left = this.width * (X_PARTITION_RATIO * (this.getDayOfTheWeek(calendarEvent.startDate.time) - 1))
+
+        val right = this.width * (X_PARTITION_RATIO * (this.getDayOfTheWeek(calendarEvent.endDate.time)))
+
+        val eventRect = CalendarEventRect(left, top, right, bottom)
+
+        eventRect.calendarEvent = calendarEvent
+
+        return eventRect
+    }
+
+    private fun drawEventRect(calendarEventRect: CalendarEventRect, canvas: Canvas) {
+
+        val calendarEvent = calendarEventRect.calendarEvent
+
+        if (calendarEvent != null) {
+
+            canvas.drawRoundRect(calendarEventRect, 4f, 4f, calendarEvent.eventPaint)
+
+            canvas.drawText(calendarEvent.title, calendarEventRect.centerX(), calendarEventRect.centerY() + (this.whiteTextPaint.textSize / 3), this.whiteTextPaint)
+        }
     }
 
     private fun drawVerticalLines(canvas: Canvas) {
@@ -203,7 +264,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     }
 
     private fun drawCurrentHour(canvas: Canvas) {
-        val currentHourDecimalFormat = this.getCurrentHourInDecimalFormat()
+        val currentHourDecimalFormat = this.getHourInDecimalFormat(this.currentTimeCalendar.timeInMillis)
         canvas.drawLine((this.width / 7f) * (this.currentDayOfTheWeek - 1f),
                 this.height * (Y_PARTITION_RATIO * currentHourDecimalFormat),
                 (this.width / 7f) * (this.currentDayOfTheWeek),
@@ -214,11 +275,19 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
                 10f, this.currentHourCirclePaint)
     }
 
-    private fun getCurrentHourInDecimalFormat(): Float {
-        val minutes = this.currentTimeCalendar.get(Calendar.MINUTE) / 100f
-        val hours = this.currentTimeCalendar.get(Calendar.HOUR_OF_DAY)
+    private fun getHourInDecimalFormat(milliseconds: Long): Float {
+        val c = Calendar.getInstance()
+        c.timeInMillis = milliseconds
+        val minutes = c.get(Calendar.MINUTE) / 100f
         val result = (minutes * 100f) / 60f
+        val hours = c.get(Calendar.HOUR_OF_DAY)
         return hours + result
+    }
+
+    private fun getDayOfTheWeek(milliseconds: Long): Int {
+        val c = Calendar.getInstance()
+        c.timeInMillis = milliseconds
+        return c.get(Calendar.DAY_OF_WEEK)
     }
 
     fun setWeekOfTheYear(weekOfTheYear: Int) {
@@ -231,14 +300,5 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     interface OnDayOfWeekSelectedListener {
 
         fun onDayOfWeekSelected(dayOfWeek: Int)
-    }
-
-    class ColumnRect : RectF {
-        constructor(l: Float, t: Float, r: Float, b: Float) : super(l, t, r, b)
-        constructor(rect: Rect) : super(rect)
-        constructor(rectF: RectF) : super(rectF)
-
-        var isCurrentDayOfTheWeek: Boolean = false
-        var dayOfTheWeek: Int = -1
     }
 }

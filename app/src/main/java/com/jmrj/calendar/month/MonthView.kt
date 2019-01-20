@@ -6,6 +6,7 @@ import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import com.jmrj.calendar.CalendarEventRect
 import java.util.*
 
 class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : View(context, attrs, defStyleAttr) {
@@ -52,14 +53,6 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         p.style = Paint.Style.STROKE
         p.strokeWidth = 0.5f
         p.color = Color.LTGRAY
-        p
-    }
-
-    private val dayPaint: Paint by lazy {
-        val p = Paint()
-        p.isAntiAlias = true
-        p.style = Paint.Style.FILL
-        p.color = Color.TRANSPARENT
         p
     }
 
@@ -125,7 +118,7 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
     private val marginTop: Float
         get() = this.height * (1 / 14f)
 
-    private val daysAreas: List<DateRect> by lazy { this.createAreas(this.marginTop) }
+    private var daysAreas: List<CalendarEventRect> = emptyList()
 
     var dayOfMonthSelectedListener: OnDayOfMonthSelectedListener? = null
 
@@ -168,6 +161,10 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
 
         this.drawDaysOfTheWeek(this.currentDayOfTheWeek, canvas)
 
+        if (this.daysAreas.isEmpty()) {
+            this.daysAreas = this.createAreas(marginTop)
+        }
+
         this.drawAreas(this.daysAreas, canvas)
 
         this.drawHorizontalLines(marginTop, canvas)
@@ -188,45 +185,51 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         }
     }
 
-    private fun drawAreas(areas: List<DateRect>, canvas: Canvas) {
-        this.mutableMonthCalendar.timeInMillis = this.monthCalendar.timeInMillis
-        for (index in areas.indices) {
-            val area = areas[index]
-            val month = this.mutableMonthCalendar.get(Calendar.MONTH)
-            val dayOfTheMonth = this.mutableMonthCalendar.get(Calendar.DAY_OF_MONTH)
-            val isCurrentMonth = month == this.monthOfTheYear
-            if (isCurrentMonth) {
-                area.dayOfTheMonth = dayOfTheMonth
-            }
-            val isCurrentDate = this.isCurrentDate(month, dayOfTheMonth)
-            canvas.drawRect(area, this.dayPaint)
+    private fun drawAreas(areas: List<CalendarEventRect>, canvas: Canvas) {
+
+        for (area in areas) {
 
             val currentDayRect = RectF(area.left + 5, area.top + 5, area.right - 5, area.top + 40f)
 
-            if (isCurrentDate) {
+            if (area.isCurrentDayOfMonth) {
                 canvas.drawRoundRect(currentDayRect, 4f, 4f, this.currentDatePaint)
             }
 
-            canvas.drawText("$dayOfTheMonth",
+            canvas.drawText("${area.dayOfTheMonth}",
                     currentDayRect.centerX(),
                     currentDayRect.centerY() + (this.whiteTextPaint.textSize / 3),
-                    if (isCurrentDate) this.whiteTextPaint else if (isCurrentMonth) this.dayOfCurrentMonthTextPaint else this.dayOutOfCurrentMonthTextPaint)
-            this.mutableMonthCalendar.add(Calendar.DAY_OF_YEAR, 1)
+                    if (area.isCurrentDayOfMonth) this.whiteTextPaint else if (area.isInCurrentMonth) this.dayOfCurrentMonthTextPaint else this.dayOutOfCurrentMonthTextPaint)
         }
     }
 
-    private fun createAreas(marginTop: Float): List<DateRect> {
-        val areas: MutableList<DateRect> = mutableListOf()
+    private fun createAreas(marginTop: Float): List<CalendarEventRect> {
+
+        val areas: MutableList<CalendarEventRect> = mutableListOf()
+
         for (i in 0 until 6) {
             val top = ((this.height - marginTop) * (Y_PARTITION_RATIO * i)) + marginTop
             val bottom = ((this.height - marginTop) * (Y_PARTITION_RATIO * (i + 1))) + marginTop
             for (j in 0 until 7) {
                 val left = this.width.toFloat() * (X_PARTITION_RATIO * j)
                 val right = this.width.toFloat() * (X_PARTITION_RATIO * (j + 1))
-                val rect = DateRect(left + 1f, top + 1f, right - 1f, bottom - 1f)
+                val rect = CalendarEventRect(left + 1f, top + 1f, right - 1f, bottom - 1f)
                 areas.add(rect)
             }
         }
+
+        this.mutableMonthCalendar.timeInMillis = this.monthCalendar.timeInMillis
+
+        for (area in areas) {
+
+            val month = this.mutableMonthCalendar.get(Calendar.MONTH)
+            val dayOfTheMonth = this.mutableMonthCalendar.get(Calendar.DAY_OF_MONTH)
+            area.dayOfTheMonth = dayOfTheMonth
+            area.isInCurrentMonth = month == this.monthOfTheYear
+            area.isCurrentDayOfMonth = this.isCurrentDayOfMonth(month, dayOfTheMonth)
+
+            this.mutableMonthCalendar.add(Calendar.DAY_OF_YEAR, 1)
+        }
+
         return areas
     }
 
@@ -285,7 +288,7 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         }
     }
 
-    private fun isCurrentDate(month: Int, day: Int): Boolean {
+    private fun isCurrentDayOfMonth(month: Int, day: Int): Boolean {
         return this.currentMonth == month && this.currentDay == day && month == this.monthOfTheYear
     }
 
@@ -299,13 +302,5 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
     interface OnDayOfMonthSelectedListener {
 
         fun onDayOfMonthSelected(dayOfMonth: Int)
-    }
-
-    class DateRect : RectF {
-        constructor(l: Float, t: Float, r: Float, b: Float) : super(l, t, r, b)
-        constructor(rect: Rect) : super(rect)
-        constructor(rectF: RectF) : super(rectF)
-
-        var dayOfTheMonth: Int = -1
     }
 }
