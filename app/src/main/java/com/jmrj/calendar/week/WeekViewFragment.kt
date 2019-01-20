@@ -50,10 +50,20 @@ class WeekViewFragment : Fragment(), WeekView.OnDayOfWeekSelectedListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         val eventsHolder = this.eventsHolder
         val selectedWeek = eventsHolder?.index ?: 0
         val events = eventsHolder?.events ?: emptyList()
+
         this.weekCalendar.set(Calendar.WEEK_OF_YEAR, selectedWeek)
+
+        /** This line is required for the calendar to calculate the correct date,
+         *  the method this.weekCalendar.set(Calendar.WEEK_OF_YEAR, selectedWeek)
+         *  only set the value week of the year but not re-calculate the date until
+         *  the method this.weekCalendar.get(Calendar.WEEK_OF_YEAR) is called
+         */
+        this.weekCalendar.get(Calendar.WEEK_OF_YEAR)
+
         this.days_of_week_view.setWeekOfTheYear(selectedWeek)
         this.week_view.setWeekOfTheYear(selectedWeek, events)
         this.week_view.dayOfTheWeekSelectedListener = this
