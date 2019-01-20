@@ -5,11 +5,12 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.jmrj.calendar.month.MonthViewFragment
 import com.jmrj.calendar.month.MonthsFragmentPagerAdapter
 import kotlinx.android.synthetic.main.main_month_view_fragment_layout.*
 import java.util.*
 
-class MainMonthViewFragment : Fragment() {
+class MainMonthViewFragment : Fragment(), MonthViewFragment.OnDateSelectedListener {
 
     private val calendar: Calendar by lazy { Calendar.getInstance(Locale.getDefault()) }
 
@@ -21,5 +22,9 @@ class MainMonthViewFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         this.months_view_pager.adapter = MonthsFragmentPagerAdapter(this.childFragmentManager)
         this.months_view_pager.currentItem = this.calendar.get(Calendar.MONTH)
+    }
+
+    override fun onDateSelected(date: Date) {
+
     }
 }

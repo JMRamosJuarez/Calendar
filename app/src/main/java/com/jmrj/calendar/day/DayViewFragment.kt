@@ -9,7 +9,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.jmrj.calendar.CalendarEvent
-import com.jmrj.calendar.EventSelectedListener
 import com.jmrj.calendar.R
 import kotlinx.android.synthetic.main.day_view_fragment_layout.*
 
@@ -52,7 +51,7 @@ internal class DayViewFragment : Fragment() {
         }
     }
 
-    private var eventSelectedListener: EventSelectedListener? = null
+    private var eventSelectedListener: DayView.EventSelectedListener? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.day_view_fragment_layout, container, false)
@@ -70,7 +69,7 @@ internal class DayViewFragment : Fragment() {
     override fun onAttach(context: Context?) {
         super.onAttach(context)
         val parentFragment = this.parentFragment
-        if (parentFragment is EventSelectedListener) {
+        if (parentFragment is DayView.EventSelectedListener) {
             this.eventSelectedListener = parentFragment
         }
     }
