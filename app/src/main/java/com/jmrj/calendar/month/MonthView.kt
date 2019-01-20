@@ -125,7 +125,7 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
     private val marginTop: Float
         get() = this.height * (1 / 14f)
 
-    private var daysAreas: List<DateRect> = emptyList()
+    private val daysAreas: List<DateRect> by lazy { this.createAreas(this.marginTop) }
 
     var dayOfMonthSelectedListener: OnDayOfMonthSelectedListener? = null
 
@@ -149,7 +149,7 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
                 val dayOfMonth = selectedRect?.dayOfTheMonth ?: -1
 
                 if (dayOfMonth > -1) {
-                    this@MonthView.dayOfMonthSelectedListener?.onDayOfMonthSeleceted(dayOfMonth)
+                    this@MonthView.dayOfMonthSelectedListener?.onDayOfMonthSelected(dayOfMonth)
                 }
 
                 return true
@@ -167,10 +167,6 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         val marginTop = this.marginTop
 
         this.drawDaysOfTheWeek(this.currentDayOfTheWeek, canvas)
-
-        if (this.daysAreas.isEmpty()) {
-            this.daysAreas = this.createAreas(marginTop)
-        }
 
         this.drawAreas(this.daysAreas, canvas)
 
@@ -302,7 +298,7 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
 
     interface OnDayOfMonthSelectedListener {
 
-        fun onDayOfMonthSeleceted(dayOfMonth: Int)
+        fun onDayOfMonthSelected(dayOfMonth: Int)
     }
 
     class DateRect : RectF {

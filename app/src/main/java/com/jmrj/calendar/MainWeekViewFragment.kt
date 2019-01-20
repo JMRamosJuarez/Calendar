@@ -2,6 +2,7 @@ package com.jmrj.calendar
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,7 +10,7 @@ import com.jmrj.calendar.week.WeeksFragmentPagerAdapter
 import kotlinx.android.synthetic.main.main_week_view_layout.*
 import java.util.*
 
-class MainWeekViewFragment : Fragment() {
+class MainWeekViewFragment : Fragment(), DateSelectedListener {
 
     private val calendar: Calendar by lazy { Calendar.getInstance(Locale.getDefault()) }
 
@@ -24,5 +25,9 @@ class MainWeekViewFragment : Fragment() {
         this.weeks_view_pager.adapter = this.adapter
         val item: Int = this.calendar.get(Calendar.WEEK_OF_YEAR)
         this.weeks_view_pager.currentItem = item
+    }
+
+    override fun onDateSelected(date: Date) {
+        Log.i("DATE_SELECTED", date.toString())
     }
 }

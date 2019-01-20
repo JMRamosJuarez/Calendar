@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.jmrj.calendar.DateSelectedListener
 import com.jmrj.calendar.R
 import kotlinx.android.synthetic.main.month_view_fragment_layout.*
 import java.util.*
@@ -40,7 +41,7 @@ class MonthViewFragment : Fragment(), MonthView.OnDayOfMonthSelectedListener {
         calendar
     }
 
-    private var onDateSelectedListener: OnDateSelectedListener? = null
+    private var onDateSelectedListener: DateSelectedListener? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.month_view_fragment_layout, container, false)
@@ -56,7 +57,7 @@ class MonthViewFragment : Fragment(), MonthView.OnDayOfMonthSelectedListener {
     override fun onAttach(context: Context?) {
         super.onAttach(context)
         val parentFragment = this.parentFragment
-        if (parentFragment is OnDateSelectedListener) {
+        if (parentFragment is DateSelectedListener) {
             this.onDateSelectedListener = parentFragment
         }
     }
@@ -66,12 +67,8 @@ class MonthViewFragment : Fragment(), MonthView.OnDayOfMonthSelectedListener {
         this.onDateSelectedListener = null
     }
 
-    override fun onDayOfMonthSeleceted(dayOfMonth: Int) {
+    override fun onDayOfMonthSelected(dayOfMonth: Int) {
         this.monthCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
         this.onDateSelectedListener?.onDateSelected(this.monthCalendar.time)
-    }
-
-    interface OnDateSelectedListener {
-        fun onDateSelected(date: Date)
     }
 }

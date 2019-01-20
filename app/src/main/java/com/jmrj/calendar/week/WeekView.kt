@@ -3,6 +3,8 @@ package com.jmrj.calendar.week
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.View
 import com.jmrj.calendar.ScrollSynchronizer
 import com.jmrj.calendar.SynchronizedScrollView
@@ -88,23 +90,58 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         p
     }
 
-    private val daysAreas: List<ColumnRect>
-        get() = this.createAreas()
+    var dayOfTheWeekSelectedListener: OnDayOfWeekSelectedListener? = null
+
+    private val gestureDetector: GestureDetector by lazy {
+        GestureDetector(this.context, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onDown(e: MotionEvent?): Boolean {
+                return true
+            }
+
+            override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
+
+                val selectedX = e?.x ?: 0f
+                val selectedY = e?.y ?: 0f
+
+                val selectedRect = this@WeekView.daysAreas.find { rect ->
+                    rect.dayOfTheWeek > -1 && rect.contains(selectedX, selectedY)
+                }
+
+                val dayOfTheWeek = selectedRect?.dayOfTheWeek ?: -1
+
+                if (dayOfTheWeek > -1) {
+                    this@WeekView.dayOfTheWeekSelectedListener?.onDayOfWeekSelected(dayOfTheWeek)
+                }
+
+                return true
+            }
+
+            override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+                return true
+            }
+        })
+    }
+
+    private val daysAreas: List<ColumnRect> by lazy { this.createAreas() }
 
     private var parentScrollView: SynchronizedScrollView? = null
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
+
         this.drawHorizontalLines(canvas)
+
         this.drawVerticalLines(canvas)
 
-        val areas = this.daysAreas
-
-        this.drawAreas(areas, canvas)
+        this.drawAreas(this.daysAreas, canvas)
 
         if (this.currentWeek == this.selectedWeek) {
             this.drawCurrentHour(canvas)
         }
+    }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        return this.gestureDetector.onTouchEvent(event)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -140,10 +177,11 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             val top = this.height * (Y_PARTITION_RATIO * i)
             val bottom = this.height * (Y_PARTITION_RATIO * (i + 1f))
             for (j in 0 until 7) {
-                val left = this.width.toFloat() * (X_PARTITION_RATIO * j)
-                val right = this.width.toFloat() * (X_PARTITION_RATIO * (j + 1f))
+                val left = this.width * (X_PARTITION_RATIO * j)
+                val right = this.width * (X_PARTITION_RATIO * (j + 1f))
                 val rect = ColumnRect(left + 1f, top + 1f, right - 1f, bottom - 1f)
                 rect.isCurrentDayOfTheWeek = ((j + 1) == this.currentDayOfTheWeek) && this.selectedWeek == this.currentWeek
+                rect.dayOfTheWeek = j + 1
                 areas.add(rect)
             }
         }
@@ -165,13 +203,14 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     }
 
     private fun drawCurrentHour(canvas: Canvas) {
-        canvas.drawLine((this.width.toFloat() / 7f) * (this.currentDayOfTheWeek - 1),
-                this.height.toFloat() * (Y_PARTITION_RATIO * this.getCurrentHourInDecimalFormat()),
-                (this.width.toFloat() / 7f) * (this.currentDayOfTheWeek),
-                this.height.toFloat() * (Y_PARTITION_RATIO * this.getCurrentHourInDecimalFormat()),
+        val currentHourDecimalFormat = this.getCurrentHourInDecimalFormat()
+        canvas.drawLine((this.width / 7f) * (this.currentDayOfTheWeek - 1f),
+                this.height * (Y_PARTITION_RATIO * currentHourDecimalFormat),
+                (this.width / 7f) * (this.currentDayOfTheWeek),
+                this.height * (Y_PARTITION_RATIO * currentHourDecimalFormat),
                 this.currentHourPaint)
-        canvas.drawCircle((this.width.toFloat() / 7f) * (this.currentDayOfTheWeek - 1),
-                this.height * (Y_PARTITION_RATIO * this.getCurrentHourInDecimalFormat()),
+        canvas.drawCircle((this.width / 7f) * (this.currentDayOfTheWeek - 1f),
+                this.height * (Y_PARTITION_RATIO * currentHourDecimalFormat),
                 10f, this.currentHourCirclePaint)
     }
 
@@ -189,10 +228,17 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         this.invalidate()
     }
 
+    interface OnDayOfWeekSelectedListener {
+
+        fun onDayOfWeekSelected(dayOfWeek: Int)
+    }
+
     class ColumnRect : RectF {
         constructor(l: Float, t: Float, r: Float, b: Float) : super(l, t, r, b)
         constructor(rect: Rect) : super(rect)
         constructor(rectF: RectF) : super(rectF)
+
         var isCurrentDayOfTheWeek: Boolean = false
+        var dayOfTheWeek: Int = -1
     }
 }
