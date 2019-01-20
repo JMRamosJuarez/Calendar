@@ -233,9 +233,9 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
         val bottom = this.height * (Y_PARTITION_RATIO * decimalEndTime)
 
-        val left = this.width * (X_PARTITION_RATIO * (this.getDayOfTheWeek(calendarEvent.startDate.time) - 1))
+        val left = this.width * (X_PARTITION_RATIO * this.getDayOfTheWeek(calendarEvent.startDate.time))
 
-        val right = this.width * (X_PARTITION_RATIO * (this.getDayOfTheWeek(calendarEvent.endDate.time)))
+        val right = left + (this.width * (X_PARTITION_RATIO * this.getDaysDiff(calendarEvent.startDate.time, calendarEvent.endDate.time)))
 
         val eventRect = CalendarEventRect(left, top, right, bottom)
 
@@ -294,7 +294,28 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     private fun getDayOfTheWeek(milliseconds: Long): Int {
         val c = Calendar.getInstance()
         c.timeInMillis = milliseconds
-        return c.get(Calendar.DAY_OF_WEEK)
+        return c.get(Calendar.DAY_OF_WEEK) - 1
+    }
+
+    private fun getDaysDiff(startTime: Long, endTime: Long): Int {
+
+        val startTimeCalendar = Calendar.getInstance()
+        startTimeCalendar.timeInMillis = startTime
+        startTimeCalendar.clear(Calendar.HOUR)
+        startTimeCalendar.clear(Calendar.HOUR_OF_DAY)
+        startTimeCalendar.clear(Calendar.MINUTE)
+        startTimeCalendar.clear(Calendar.SECOND)
+        startTimeCalendar.clear(Calendar.MILLISECOND)
+
+        val endTimeCalendar = Calendar.getInstance()
+        endTimeCalendar.timeInMillis = endTime
+        endTimeCalendar.clear(Calendar.HOUR)
+        endTimeCalendar.clear(Calendar.HOUR_OF_DAY)
+        endTimeCalendar.clear(Calendar.MINUTE)
+        endTimeCalendar.clear(Calendar.SECOND)
+        endTimeCalendar.clear(Calendar.MILLISECOND)
+
+        return (endTimeCalendar.get(Calendar.DAY_OF_MONTH) - startTimeCalendar.get(Calendar.DAY_OF_MONTH)) + 1
     }
 
     fun setWeekOfTheYear(weekOfTheYear: Int, events: List<CalendarEvent>) {

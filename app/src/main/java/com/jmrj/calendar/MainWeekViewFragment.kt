@@ -25,8 +25,10 @@ class MainWeekViewFragment : Fragment(), DateSelectedListener, EventSelectedList
         super.onViewCreated(view, savedInstanceState)
         val events: Map<Int, List<CalendarEvent>> = mapOf(
                 Pair(4, listOf(
-                        CalendarEvent("#b8ab9b", "Event title", Date(1547985900000), Date(1547990100000)),
-                        CalendarEvent("#88b9b4", "Second Event title", Date(1548084300000), Date(1548264600000))
+                        CalendarEvent("#b8ab9b", "Event title", Date(1548274020000), Date(1548623220000))
+                )),
+                Pair(5, listOf(
+                        CalendarEvent("#b8ab9b", "Event title", Date(1548274020000), Date(1548623220000))
                 ))
         )
         this.weeks_view_pager.adapter =
