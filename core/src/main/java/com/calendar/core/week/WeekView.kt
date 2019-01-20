@@ -229,13 +229,13 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
         val decimalEndTime = this.getHourInDecimalFormat(calendarEvent.endDate.time)
 
-        val top = this.height * (Y_PARTITION_RATIO * decimalStartTime)
+        val top = (this.height * Y_PARTITION_RATIO) * decimalStartTime
 
-        val bottom = this.height * (Y_PARTITION_RATIO * decimalEndTime)
+        val bottom = (this.height * Y_PARTITION_RATIO) * decimalEndTime
 
-        val left = this.width * (X_PARTITION_RATIO * this.getDayOfTheWeek(calendarEvent.startDate.time))
+        val left = (this.width * X_PARTITION_RATIO) * this.getDayOfTheWeek(calendarEvent.startDate.time)
 
-        val right = left + (this.width * (X_PARTITION_RATIO * this.getDaysDiff(calendarEvent.startDate.time, calendarEvent.endDate.time)))
+        val right = left + ((this.width * X_PARTITION_RATIO) * this.getDaysDiff(calendarEvent.startDate.time, calendarEvent.endDate.time))
 
         val eventRect = CalendarEventRect(left, top, right, bottom)
 
@@ -289,6 +289,13 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         val result = (minutes * 100f) / 60f
         val hours = c.get(Calendar.HOUR_OF_DAY)
         return hours + result
+    }
+
+    private fun getDaysInDecimalFormat(milliseconds: Long): Float {
+        val c = Calendar.getInstance()
+        c.timeInMillis = milliseconds
+        val days = c.get(Calendar.DAY_OF_WEEK) / 100f
+        return 1 / ((days * 100f) / 7f)
     }
 
     private fun getDayOfTheWeek(milliseconds: Long): Int {
