@@ -1,5 +1,6 @@
 package com.jmrj.calendar.day
 
+import android.content.Context
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
@@ -8,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.jmrj.calendar.CalendarEvent
+import com.jmrj.calendar.EventSelectedListener
 import com.jmrj.calendar.R
 import kotlinx.android.synthetic.main.day_view_fragment_layout.*
 
@@ -50,6 +52,8 @@ internal class DayViewFragment : Fragment() {
         }
     }
 
+    private var eventSelectedListener: EventSelectedListener? = null
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.day_view_fragment_layout, container, false)
     }
@@ -60,5 +64,19 @@ internal class DayViewFragment : Fragment() {
         this.current_day_view.setDayOfTheYear(eventsHolder?.dayOfTheYear ?: 0)
         this.day_view.setEvents(eventsHolder?.dayOfTheYear ?: 0,
                 eventsHolder?.events ?: emptyList())
+        this.day_view.eventSelectedListener = this.eventSelectedListener
+    }
+
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        val parentFragment = this.parentFragment
+        if (parentFragment is EventSelectedListener) {
+            this.eventSelectedListener = parentFragment
+        }
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        this.eventSelectedListener = null
     }
 }

@@ -9,7 +9,7 @@ import com.jmrj.calendar.day.DaysFragmentPagerAdapter
 import kotlinx.android.synthetic.main.main_day_view_fragment_layout.*
 import java.util.*
 
-class MainDayViewFragment : Fragment() {
+class MainDayViewFragment : Fragment(), EventSelectedListener {
 
     private val calendar: Calendar by lazy { Calendar.getInstance(Locale.getDefault()) }
 
@@ -27,5 +27,9 @@ class MainDayViewFragment : Fragment() {
         )
         this.days_view_pager.adapter = DaysFragmentPagerAdapter(this.childFragmentManager, events)
         this.days_view_pager.currentItem = this.calendar.get(Calendar.DAY_OF_YEAR)
+    }
+
+    override fun onEventSelected(calendarEvent: CalendarEvent) {
+
     }
 }

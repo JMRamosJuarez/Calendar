@@ -4,12 +4,11 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.RectF
 import android.util.AttributeSet
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.View
-import com.jmrj.calendar.CalendarEvent
-import com.jmrj.calendar.ScrollSynchronizer
-import com.jmrj.calendar.SynchronizedScrollView
+import com.jmrj.calendar.*
 import java.util.*
 
 internal class DayView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : View(context, attrs, defStyleAttr) {
@@ -60,6 +59,38 @@ internal class DayView @JvmOverloads constructor(context: Context, attrs: Attrib
         p
     }
 
+    var eventSelectedListener: EventSelectedListener? = null
+
+    private val gestureDetector: GestureDetector by lazy {
+        GestureDetector(this.context, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onDown(e: MotionEvent?): Boolean {
+                return true
+            }
+
+            override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
+
+                val selectedX = e?.x ?: 0f
+                val selectedY = e?.y ?: 0f
+
+                val selectedRect = this@DayView.eventRects.find { rect ->
+                    rect.calendarEvent != null && rect.contains(selectedX, selectedY)
+                }
+
+                val event = selectedRect?.calendarEvent
+
+                if (event != null) {
+                    this@DayView.eventSelectedListener?.onEventSelected(event)
+                }
+
+                return true
+            }
+
+            override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+                return true
+            }
+        })
+    }
+
     private val currentTimeCalendar: Calendar by lazy { Calendar.getInstance() }
 
     private val currentDayOfTheYear: Int by lazy { this.currentTimeCalendar.get(Calendar.DAY_OF_YEAR) }
@@ -72,14 +103,20 @@ internal class DayView @JvmOverloads constructor(context: Context, attrs: Attrib
 
     private val Y_PARTITION_RATIO = 1 / 24f
 
+    private var eventRects: List<CalendarEventRect> = emptyList()
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         canvas.drawColor(Color.WHITE)
         this.drawHorizontalLines(canvas)
-        this.drawCurrentHour(canvas)
-        for (event in this.events) {
-            this.drawEvent(event, canvas)
+
+        this.eventRects = this.createEventRects(this.events)
+
+        for (eventR in this.eventRects) {
+            this.drawEventRect(eventR, canvas)
         }
+
+        this.drawCurrentHour(canvas)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -91,6 +128,10 @@ internal class DayView @JvmOverloads constructor(context: Context, attrs: Attrib
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
         this.scrollToCurrentHour()
+    }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        return this.gestureDetector.onTouchEvent(event)
     }
 
     private fun scrollToCurrentHour() {
@@ -127,7 +168,15 @@ internal class DayView @JvmOverloads constructor(context: Context, attrs: Attrib
         }
     }
 
-    private fun drawEvent(calendarEvent: CalendarEvent, canvas: Canvas) {
+    private fun createEventRects(calendarEvents: List<CalendarEvent>): List<CalendarEventRect> {
+        val result: MutableList<CalendarEventRect> = mutableListOf()
+        for (event in calendarEvents) {
+            result.add(this.createEventRect(event))
+        }
+        return result
+    }
+
+    private fun createEventRect(calendarEvent: CalendarEvent): CalendarEventRect {
 
         val startTime = this.getHourInDecimalFormat(calendarEvent.startDate.time)
 
@@ -137,11 +186,23 @@ internal class DayView @JvmOverloads constructor(context: Context, attrs: Attrib
 
         val bottom = this.height * (Y_PARTITION_RATIO * endTime)
 
-        val eventRect = RectF(this.width / 7f, top, this.width - (this.width / 28f), bottom)
+        val eventRect = CalendarEventRect(this.width / 7f, top, this.width - (this.width / 28f), bottom)
 
-        canvas.drawRoundRect(eventRect, 4f, 4f, calendarEvent.eventPaint)
+        eventRect.calendarEvent = calendarEvent
 
-        canvas.drawText(calendarEvent.title, eventRect.centerX(), eventRect.centerY() + (this.whiteTextPaint.textSize / 3), this.whiteTextPaint)
+        return eventRect
+    }
+
+    private fun drawEventRect(calendarEventRect: CalendarEventRect, canvas: Canvas) {
+
+        val calendarEvent = calendarEventRect.calendarEvent
+
+        if (calendarEvent != null) {
+
+            canvas.drawRoundRect(calendarEventRect, 4f, 4f, calendarEvent.eventPaint)
+
+            canvas.drawText(calendarEvent.title, calendarEventRect.centerX(), calendarEventRect.centerY() + (this.whiteTextPaint.textSize / 3), this.whiteTextPaint)
+        }
     }
 
     private fun getCurrentHourInDecimalFormat(): Float {
