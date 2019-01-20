@@ -1,11 +1,11 @@
-package com.jmrj.calendar.month
+package com.jmrj.calendar
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.jmrj.calendar.R
+import com.jmrj.calendar.month.MonthsFragmentPagerAdapter
 import kotlinx.android.synthetic.main.main_month_view_fragment_layout.*
 import java.util.*
 

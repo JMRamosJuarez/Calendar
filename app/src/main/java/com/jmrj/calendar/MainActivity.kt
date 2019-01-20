@@ -5,9 +5,6 @@ import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
-import com.jmrj.calendar.day.MainDayViewFragment
-import com.jmrj.calendar.month.MainMonthViewFragment
-import com.jmrj.calendar.week.MainWeekViewFragment
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -25,7 +22,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-        replaceFragment(this.weekViewFragment)
+        replaceFragment(this.dayViewFragment)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

@@ -15,7 +15,7 @@ class HoursView @JvmOverloads constructor(
 
     private val textPaint: Paint by lazy {
         val p = Paint()
-        p.color = Color.DKGRAY
+        p.color = Color.parseColor("#9c9c9c")
         p.isAntiAlias = true
         p.style = Paint.Style.FILL
         p.textAlign = Paint.Align.CENTER

@@ -42,6 +42,7 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
 
     private val currentMonth: Int by lazy { this.currentDayCalendar.get(Calendar.MONTH) }
     private val currentDay: Int by lazy { this.currentDayCalendar.get(Calendar.DAY_OF_MONTH) }
+    private val currentDayOfTheWeek: Int by lazy { this.currentDayCalendar.get(Calendar.DAY_OF_WEEK) }
 
     private var monthOfTheYear: Int = 0
 
@@ -70,11 +71,11 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         p
     }
 
-    private val circlePaint: Paint by lazy {
+    private val currentDatePaint: Paint by lazy {
         val p = Paint()
         p.isAntiAlias = true
         p.style = Paint.Style.FILL
-        p.color = Color.BLUE
+        p.color = Color.parseColor("#86774b")
         p
     }
 
@@ -88,11 +89,11 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         p
     }
 
-    private val grayTextPaint: Paint by lazy {
+    private val dayOutOfCurrentMonthTextPaint: Paint by lazy {
         val p = Paint()
         p.isAntiAlias = true
         p.style = Paint.Style.FILL
-        p.color = Color.GRAY
+        p.color = Color.parseColor("#9c9c9c")
         p.textAlign = Paint.Align.CENTER
         p.textSize = 18f
         p
@@ -102,7 +103,7 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         val p = Paint()
         p.isAntiAlias = true
         p.style = Paint.Style.FILL
-        p.color = Color.BLUE
+        p.color = Color.parseColor("#4a4a4a")
         p.textAlign = Paint.Align.CENTER
         p.textSize = 18f
         p
@@ -112,18 +113,27 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         val p = Paint()
         p.isAntiAlias = true
         p.style = Paint.Style.FILL
-        p.color = Color.DKGRAY
+        p.color = Color.parseColor("#9c9c9c")
         p.textAlign = Paint.Align.CENTER
+        p.textSize = 32f
+        p
+    }
+
+    private val currentDayOfTheWeekTextPaint: Paint by lazy {
+        val p = Paint()
+        p.isAntiAlias = true
+        p.style = Paint.Style.FILL
+        p.color = Color.parseColor("#86774b")
+        p.textAlign = Paint.Align.CENTER
+        p.textSize = 32f
         p.typeface = Typeface.DEFAULT_BOLD
-        p.textSize = 22f
         p
     }
 
     private val marginTop: Float
-        get() = this.height * (1 / 28f)
+        get() = this.height * (1 / 14f)
 
-    private val daysAreas: List<RectF>
-        get() = this.createAreas(this.marginTop)
+    private var daysAreas: List<RectF> = emptyList()
 
     private val X_PARTITION_RATIO = 1 / 7f
     private val Y_PARTITION_RATIO = 1 / 6f
@@ -153,24 +163,31 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        val areas = this.daysAreas
-
         val marginTop = this.marginTop
 
-        this.drawDaysOfTheWeek(marginTop, canvas)
+        this.daysAreas = this.createAreas(marginTop)
 
-        this.drawAreas(areas, canvas)
+        this.drawDaysOfTheWeek(this.currentDayOfTheWeek, canvas)
+
+        this.drawAreas(this.daysAreas, canvas)
 
         this.drawHorizontalLines(marginTop, canvas)
+
+        this.drawVerticalLines(marginTop, canvas)
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         return this.gestureDetector.onTouchEvent(event)
     }
 
-    private fun drawDaysOfTheWeek(marginTop: Float, canvas: Canvas) {
+    private fun drawDaysOfTheWeek(currentDayOfTheWeek: Int, canvas: Canvas) {
+        val top = 0f
+        val bottom = this.height * (1 / 14f)
         for (i in 0 until 7) {
-            canvas.drawText(this.getDayOfTheWeek(i), (this.width * (X_PARTITION_RATIO * i)) + 28f, marginTop, this.daysOfTheWeekTextPaint)
+            val left = this.width.toFloat() * (X_PARTITION_RATIO * i)
+            val right = this.width.toFloat() * (X_PARTITION_RATIO * (i + 1))
+            val rect = RectF(left + 1f, top + 1f, right - 1f, bottom - 1f)
+            canvas.drawText(this.getDayOfTheWeek(i), rect.centerX(), rect.centerY() + (this.daysOfTheWeekTextPaint.textSize / 3), if ((this.currentMonth == this.monthOfTheYear) && currentDayOfTheWeek == (i + 1)) this.currentDayOfTheWeekTextPaint else this.daysOfTheWeekTextPaint)
         }
     }
 
@@ -178,13 +195,18 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         this.mutableMonthCalendar.timeInMillis = this.monthCalendar.timeInMillis
         for (index in areas.indices) {
             val area = areas[index]
-            val dayOfTheMonth = this.mutableMonthCalendar.get(Calendar.DAY_OF_MONTH)
             val month = this.mutableMonthCalendar.get(Calendar.MONTH)
+            val dayOfTheMonth = this.mutableMonthCalendar.get(Calendar.DAY_OF_MONTH)
+            val isCurrentDate = this.isCurrentDate(month, dayOfTheMonth)
             canvas.drawRect(area, if (area.contains(this.selectedX, this.selectedY)) this.selectedDayPaint else this.dayPaint)
-            if (this.isCurrentDate(month, dayOfTheMonth)) {
-                canvas.drawCircle(area.left + 28f, area.top + 28, this.grayTextPaint.textSize, this.circlePaint)
+
+            val dayRect = RectF(area.left + 5, area.top + 5, area.right - 5, area.top + 40f)
+
+            if (isCurrentDate) {
+                canvas.drawRoundRect(dayRect, 4f, 4f, this.currentDatePaint)
             }
-            canvas.drawText("$dayOfTheMonth", area.left + 28f, area.top + 33.5f, if (this.isCurrentDate(month, dayOfTheMonth)) this.whiteTextPaint else if (month == this.monthOfTheYear) this.dayOfCurrentMonthTextPaint else this.grayTextPaint)
+
+            canvas.drawText("$dayOfTheMonth", dayRect.centerX(), dayRect.centerY() + (this.whiteTextPaint.textSize / 3), if (isCurrentDate) this.whiteTextPaint else if (month == this.monthOfTheYear) this.dayOfCurrentMonthTextPaint else this.dayOutOfCurrentMonthTextPaint)
             this.mutableMonthCalendar.add(Calendar.DAY_OF_YEAR, 1)
         }
     }
@@ -212,7 +234,7 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
     }
 
     private fun drawHorizontalLines(marginTop: Float, canvas: Canvas) {
-        for (i in 1 until 6) {
+        for (i in 0 until 6) {
             //Horizontal
             canvas.drawLine(0f, ((this.height - marginTop) * (Y_PARTITION_RATIO * i)) + marginTop, this.width.toFloat(), ((this.height - marginTop) * (Y_PARTITION_RATIO * i)) + marginTop, this.linesPaint)
         }
@@ -259,7 +281,7 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         }
     }
 
-    private fun isCurrentDate(month: Int, day: Int) : Boolean {
+    private fun isCurrentDate(month: Int, day: Int): Boolean {
         return this.currentMonth == month && this.currentDay == day && month == this.monthOfTheYear
     }
 

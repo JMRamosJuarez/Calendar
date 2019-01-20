@@ -56,7 +56,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
     private val currentHourCirclePaint: Paint by lazy {
         val p = Paint()
-        p.color = Color.BLUE
+        p.color = Color.parseColor("#86774b")
         p.isAntiAlias = true
         p.style = Paint.Style.FILL
         p
@@ -64,7 +64,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
     private val currentHourPaint: Paint by lazy {
         val p = Paint()
-        p.color = Color.BLUE
+        p.color = Color.parseColor("#86774b")
         p.isAntiAlias = true
         p.style = Paint.Style.FILL
         p.strokeWidth = 2f

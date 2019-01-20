@@ -49,7 +49,7 @@ internal class CurrentDayView @JvmOverloads constructor(context: Context, attrs:
 
     private val currentDayNumberPaint: Paint by lazy {
         val p = Paint()
-        p.color = Color.BLUE
+        p.color = Color.parseColor("#86774b")
         p.isAntiAlias = true
         p.style = Paint.Style.FILL
         p.textAlign = Paint.Align.CENTER
@@ -59,7 +59,7 @@ internal class CurrentDayView @JvmOverloads constructor(context: Context, attrs:
 
     private val currentDayNamePaint: Paint by lazy {
         val p = Paint()
-        p.color = Color.BLUE
+        p.color = Color.parseColor("#86774b")
         p.isAntiAlias = true
         p.style = Paint.Style.FILL
         p.textAlign = Paint.Align.CENTER
@@ -108,7 +108,7 @@ internal class CurrentDayView @JvmOverloads constructor(context: Context, attrs:
         setMeasuredDimension(w, h + 12)
     }
 
-    fun setDay(dayOfTheYear: Int) {
+    fun setDayOfTheYear(dayOfTheYear: Int) {
         this.selectedDayOfTheYear = dayOfTheYear
         this.dayCalendar.set(Calendar.DAY_OF_YEAR, dayOfTheYear)
         this.invalidate()

@@ -77,7 +77,7 @@ class DaysOfTheWeekView @JvmOverloads constructor(context: Context, attrs: Attri
 
     private val currentDayNumberPaint: Paint by lazy {
         val p = Paint()
-        p.color = Color.BLUE
+        p.color = Color.parseColor("#86774b")
         p.isAntiAlias = true
         p.style = Paint.Style.FILL
         p.textAlign = Paint.Align.CENTER
@@ -87,7 +87,7 @@ class DaysOfTheWeekView @JvmOverloads constructor(context: Context, attrs: Attri
 
     private val currentDayNamePaint: Paint by lazy {
         val p = Paint()
-        p.color = Color.BLUE
+        p.color = Color.parseColor("#86774b")
         p.isAntiAlias = true
         p.style = Paint.Style.FILL
         p.textAlign = Paint.Align.CENTER
