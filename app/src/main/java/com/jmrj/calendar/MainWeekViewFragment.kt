@@ -6,7 +6,10 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.jmrj.calendar.week.WeeksFragmentPagerAdapter
+import com.calendar.core.CalendarEvent
+import com.calendar.core.DateSelectedListener
+import com.calendar.core.EventSelectedListener
+import com.calendar.core.week.WeeksFragmentPagerAdapter
 import kotlinx.android.synthetic.main.main_week_view_layout.*
 import java.util.*
 
