@@ -258,27 +258,30 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
         val bottom = (this.height * Y_PARTITION_RATIO) * decimalEndTime
 
-        val decimalStartDay = this.getDaysInclusiveDecimalFormat(startTime)
+        val weekDiff = if ((endWeek - startWeek) == 0) 1 else endWeek - startWeek
 
-        val decimalEndDay = this.getDaysExclusiveDecimalFormat(endTime)
+        val w = this.width * weekDiff
+
+        val decimalStartDay = this.getDaysInclusiveDecimalFormat(weekDiff, startTime)
+
+        val decimalEndDay = this.getDaysExclusiveDecimalFormat(weekDiff, endTime)
 
         val left = if (startWeek < selectedWeek) {
-            (this.width * decimalStartDay) - this.width
+            (w * decimalStartDay) - w
         } else {
-            this.width * decimalStartDay
+            w * decimalStartDay
         }
 
         val right = if (endWeek > selectedWeek) {
-            this.width + (this.width * decimalEndDay)
+            w + (w * decimalEndDay)
         } else {
-            this.width * decimalEndDay
+            w * decimalEndDay
         }
 
         val eventRect = CalendarEventRect(left, top, right, bottom)
 
         eventRect.calendarEvent = calendarEvent
-        eventRect.isStartDateInPreviousMonth = startWeek < selectedWeek
-        eventRect.isEndDateInNextMonth = endWeek > selectedWeek
+
         return eventRect
     }
 
@@ -333,18 +336,18 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         return hours + result
     }
 
-    private fun getDaysInclusiveDecimalFormat(milliseconds: Long): Float {
+    private fun getDaysInclusiveDecimalFormat(weekDiff: Int, milliseconds: Long): Float {
         val c = Calendar.getInstance()
         c.timeInMillis = milliseconds
         val days = (c.get(Calendar.DAY_OF_WEEK) - 1f) / 100f
-        return (days * 100f) / 7f
+        return (days * 100f) / (weekDiff * 7f)
     }
 
-    private fun getDaysExclusiveDecimalFormat(milliseconds: Long): Float {
+    private fun getDaysExclusiveDecimalFormat(weekDiff: Int, milliseconds: Long): Float {
         val c = Calendar.getInstance()
         c.timeInMillis = milliseconds
         val days = c.get(Calendar.DAY_OF_WEEK) / 100f
-        return (days * 100f) / 7f
+        return (days * 100f) / (weekDiff * 7f)
     }
 
     fun setWeekOfTheYear(weekOfTheYear: Int, events: List<CalendarEvent>) {
