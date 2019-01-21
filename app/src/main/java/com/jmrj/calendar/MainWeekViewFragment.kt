@@ -11,11 +11,14 @@ import com.calendar.core.DateSelectedListener
 import com.calendar.core.EventSelectedListener
 import com.calendar.core.week.WeeksFragmentPagerAdapter
 import kotlinx.android.synthetic.main.main_week_view_layout.*
+import java.text.SimpleDateFormat
 import java.util.*
 
 class MainWeekViewFragment : Fragment(), DateSelectedListener, EventSelectedListener {
 
     private val calendar: Calendar by lazy { Calendar.getInstance(Locale.getDefault()) }
+
+    private val dateFormat: SimpleDateFormat by lazy { SimpleDateFormat("dd/mm/yyy hh:mm", Locale.getDefault()) }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.main_week_view_layout, container, false)
@@ -23,23 +26,21 @@ class MainWeekViewFragment : Fragment(), DateSelectedListener, EventSelectedList
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         val events: Map<Int, List<CalendarEvent>> = mapOf(
+                Pair(3, listOf(
+                        CalendarEvent("#9c27b0", "Date", this.dateFormat.parse("19/01/2019 19:00"), this.dateFormat.parse("22/01/2019 20:57"))
+                )),
                 Pair(4, listOf(
-                        CalendarEvent("#b8ab9b", "Event title", Date(1548115200000), Date(1548118800000)),
-                        CalendarEvent("#b8ab9b", "Event title", Date(1548122400000), Date(1549339200000)),
-                        CalendarEvent("#b8ab9b", "Event title", Date(1548547200000), Date(1548637200000))
-                )),
-                Pair(5, listOf(
-                        CalendarEvent("#b8ab9b", "Event title", Date(1548122400000), Date(1549339200000)),
-                        CalendarEvent("#b8ab9b", "Event title", Date(1548547200000), Date(1548637200000))
-                )),
-                Pair(6, listOf(
-                        CalendarEvent("#b8ab9b", "Event title", Date(1548122400000), Date(1549339200000))
+                        CalendarEvent("#9c27b0", "Date", this.dateFormat.parse("19/01/2019 19:00"), this.dateFormat.parse("22/01/2019 20:57"))
                 ))
         )
+
         this.weeks_view_pager.adapter =
                 WeeksFragmentPagerAdapter(this.childFragmentManager, events)
+
         val item: Int = this.calendar.get(Calendar.WEEK_OF_YEAR)
+
         this.weeks_view_pager.currentItem = item
     }
 
