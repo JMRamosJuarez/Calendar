@@ -14,4 +14,6 @@ class CalendarEventRect : RectF {
     var isCurrentDayOfMonth: Boolean = false
     var isInCurrentMonth: Boolean = false
     var isCurrentDayOfTheWeek: Boolean = false
+    var isStartDateInPreviousMonth: Boolean = false
+    var isEndDateInNextMonth: Boolean = false
 }

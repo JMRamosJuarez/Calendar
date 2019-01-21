@@ -153,7 +153,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         this.drawCurrentDayOfWeekColumn(this.daysAreas, canvas)
 
         if (this.eventRects.isEmpty()) {
-            this.eventRects = this.createEventRects(this.events)
+            this.eventRects = this.createEventRects(this.selectedWeek, this.events)
         }
 
         for (eventR in this.eventRects) {
@@ -215,19 +215,40 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         return areas
     }
 
-    private fun createEventRects(calendarEvents: List<CalendarEvent>): List<CalendarEventRect> {
+    private fun createEventRects(selectedWeek: Int, calendarEvents: List<CalendarEvent>): List<CalendarEventRect> {
+
         val result: MutableList<CalendarEventRect> = mutableListOf()
         for (event in calendarEvents) {
-            result.add(this.createEventRect(event))
+            result.add(this.createEventRect(selectedWeek, event))
         }
         return result
     }
 
-    private fun createEventRect(calendarEvent: CalendarEvent): CalendarEventRect {
+    private fun createEventRect(selectedWeek: Int, calendarEvent: CalendarEvent): CalendarEventRect {
 
         val startTime = calendarEvent.startDate.time
 
+        val startTimeCalendar: Calendar = Calendar.getInstance(this.locale)
+        startTimeCalendar.timeInMillis = startTime
+        startTimeCalendar.clear(Calendar.HOUR)
+        startTimeCalendar.clear(Calendar.HOUR_OF_DAY)
+        startTimeCalendar.clear(Calendar.MINUTE)
+        startTimeCalendar.clear(Calendar.SECOND)
+        startTimeCalendar.clear(Calendar.MILLISECOND)
+
+        val startWeek = startTimeCalendar.get(Calendar.WEEK_OF_YEAR)
+
         val endTime = calendarEvent.endDate.time
+
+        val endTimeCalendar: Calendar = Calendar.getInstance(this.locale)
+        endTimeCalendar.timeInMillis = endTime
+        endTimeCalendar.clear(Calendar.HOUR)
+        endTimeCalendar.clear(Calendar.HOUR_OF_DAY)
+        endTimeCalendar.clear(Calendar.MINUTE)
+        endTimeCalendar.clear(Calendar.SECOND)
+        endTimeCalendar.clear(Calendar.MILLISECOND)
+
+        val endWeek = endTimeCalendar.get(Calendar.WEEK_OF_YEAR)
 
         val decimalStartTime = this.getHourInDecimalFormat(startTime)
 
@@ -237,18 +258,27 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
         val bottom = (this.height * Y_PARTITION_RATIO) * decimalEndTime
 
-        val decimalStartDay = this.getStartDaysInDecimalFormat(startTime)
+        val decimalStartDay = this.getDaysInclusiveDecimalFormat(startTime)
 
-        val decimalEndDay = this.getEndDaysInDecimalFormat(endTime)
+        val decimalEndDay = this.getDaysExclusiveDecimalFormat(endTime)
 
-        val left = (this.width * decimalStartDay)
+        val left = if (startWeek < selectedWeek) {
+            (this.width * decimalStartDay) - this.width
+        } else {
+            this.width * decimalStartDay
+        }
 
-        val right = (this.width * decimalEndDay)
+        val right = if (endWeek > selectedWeek) {
+            this.width + (this.width * decimalEndDay)
+        } else {
+            this.width * decimalEndDay
+        }
 
         val eventRect = CalendarEventRect(left, top, right, bottom)
 
         eventRect.calendarEvent = calendarEvent
-
+        eventRect.isStartDateInPreviousMonth = startWeek < selectedWeek
+        eventRect.isEndDateInNextMonth = endWeek > selectedWeek
         return eventRect
     }
 
@@ -260,7 +290,11 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
             canvas.drawRoundRect(calendarEventRect, 4f, 4f, calendarEvent.eventPaint)
 
-            canvas.drawText(calendarEvent.title, calendarEventRect.centerX(), calendarEventRect.centerY() + (this.whiteTextPaint.textSize / 3), this.whiteTextPaint)
+            val x = calendarEventRect.centerX()
+
+            val y = calendarEventRect.centerY() + (this.whiteTextPaint.textSize / 3)
+
+            canvas.drawText(calendarEvent.title, x, y, this.whiteTextPaint)
         }
     }
 
@@ -299,14 +333,14 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         return hours + result
     }
 
-    private fun getStartDaysInDecimalFormat(milliseconds: Long): Float {
+    private fun getDaysInclusiveDecimalFormat(milliseconds: Long): Float {
         val c = Calendar.getInstance()
         c.timeInMillis = milliseconds
         val days = (c.get(Calendar.DAY_OF_WEEK) - 1f) / 100f
         return (days * 100f) / 7f
     }
 
-    private fun getEndDaysInDecimalFormat(milliseconds: Long): Float {
+    private fun getDaysExclusiveDecimalFormat(milliseconds: Long): Float {
         val c = Calendar.getInstance()
         c.timeInMillis = milliseconds
         val days = c.get(Calendar.DAY_OF_WEEK) / 100f
