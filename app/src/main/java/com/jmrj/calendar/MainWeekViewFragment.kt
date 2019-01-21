@@ -18,7 +18,7 @@ class MainWeekViewFragment : Fragment(), DateSelectedListener, EventSelectedList
 
     private val calendar: Calendar by lazy { Calendar.getInstance(Locale.getDefault()) }
 
-    private val dateFormat: SimpleDateFormat by lazy { SimpleDateFormat("dd/mm/yyy hh:mm", Locale.getDefault()) }
+    private val dateFormat: SimpleDateFormat by lazy { SimpleDateFormat("dd/mm/yyyy hh:mm", Locale.getDefault()) }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.main_week_view_layout, container, false)
