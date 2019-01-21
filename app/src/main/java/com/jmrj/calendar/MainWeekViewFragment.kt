@@ -18,7 +18,7 @@ class MainWeekViewFragment : Fragment(), DateSelectedListener, EventSelectedList
 
     private val calendar: Calendar by lazy { Calendar.getInstance(Locale.getDefault()) }
 
-    private val dateFormat: SimpleDateFormat by lazy { SimpleDateFormat("dd/mm/yyyy hh:mm", Locale.getDefault()) }
+    private val dateFormat: SimpleDateFormat by lazy { SimpleDateFormat("dd/mm/yyyy HH:mm", Locale.getDefault()) }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.main_week_view_layout, container, false)
@@ -27,12 +27,48 @@ class MainWeekViewFragment : Fragment(), DateSelectedListener, EventSelectedList
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val deepPurple = CalendarEvent("#80673AB7",
+                "Deep purple",
+                this.dateFormat.parse("19/01/2019 19:00"),
+                this.dateFormat.parse("22/01/2019 20:57"))
+
+        val blue = CalendarEvent("#802196F3",
+                "Blue",
+                this.dateFormat.parse("14/01/2019 09:00"),
+                this.dateFormat.parse("22/01/2019 11:00"))
+
+        val teal = CalendarEvent("#80009688",
+                "Teal",
+                this.dateFormat.parse("21/01/2019 12:35"),
+                this.dateFormat.parse("22/01/2019 13:57"))
+
+        val green = CalendarEvent("#804CAF50",
+                "Green",
+                this.dateFormat.parse("21/01/2019 01:35"),
+                this.dateFormat.parse("22/01/2019 06:57"))
+
+        val orange = CalendarEvent("#80FF9800",
+                "Orange",
+                this.dateFormat.parse("22/01/2019 12:15"),
+                this.dateFormat.parse("23/01/2019 14:07"))
+
+        val brown = CalendarEvent("#80795548",
+                "Brown",
+                this.dateFormat.parse("20/01/2019 15:15"),
+                this.dateFormat.parse("24/01/2019 17:59"))
+
         val events: Map<Int, List<CalendarEvent>> = mapOf(
                 Pair(3, listOf(
-                        CalendarEvent("#9c27b0", "Date", this.dateFormat.parse("19/01/2019 19:00"), this.dateFormat.parse("22/01/2019 20:57"))
+                        deepPurple,
+                        blue
                 )),
                 Pair(4, listOf(
-                        CalendarEvent("#9c27b0", "Date", this.dateFormat.parse("19/01/2019 19:00"), this.dateFormat.parse("22/01/2019 20:57"))
+                        deepPurple,
+                        blue,
+                        teal,
+                        orange,
+                        green,
+                        brown
                 ))
         )
 
