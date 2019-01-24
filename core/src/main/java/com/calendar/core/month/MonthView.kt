@@ -7,6 +7,7 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import com.calendar.core.CalendarEventRect
+import com.calendar.core.DateSelectedListener
 import java.util.*
 
 class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : View(context, attrs, defStyleAttr) {
@@ -120,7 +121,9 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
 
     private var daysAreas: List<CalendarEventRect> = emptyList()
 
-    var dayOfMonthSelectedListener: OnDayOfMonthSelectedListener? = null
+    private var daysMatrix: Array<IntArray> = Array(6) { IntArray(7) }
+
+    var dateSelectedListener: DateSelectedListener? = null
 
     private val X_PARTITION_RATIO = 1 / 7f
     private val Y_PARTITION_RATIO = 1 / 6f
@@ -135,17 +138,25 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
                 val selectedX = e?.x ?: 0f
                 val selectedY = e?.y ?: 0f
 
-                val selectedRect = this@MonthView.daysAreas.find { rect ->
-                    rect.dayOfTheMonth > -1 && rect.contains(selectedX, selectedY)
+                val row = (selectedY / (this@MonthView.height / 6)).toInt()
+
+                val column = (selectedX / (this@MonthView.width / 7)).toInt()
+
+                if (row < 6 && column < 7) {
+                    val index = this@MonthView.daysMatrix[row][column]
+                    if (index < this@MonthView.daysAreas.size) {
+                        val selectedRect = this@MonthView.daysAreas[index]
+                        if (selectedRect.isInCurrentMonth) {
+                            val dayOfTheMonth = selectedRect.dayOfTheMonth
+                            val date = selectedRect.date
+                            if (dayOfTheMonth > -1 && date != null) {
+                                this@MonthView.dateSelectedListener?.onDateSelected(date)
+                                return true
+                            }
+                        }
+                    }
                 }
-
-                val dayOfMonth = selectedRect?.dayOfTheMonth ?: -1
-
-                if (dayOfMonth > -1) {
-                    this@MonthView.dayOfMonthSelectedListener?.onDayOfMonthSelected(dayOfMonth)
-                }
-
-                return true
+                return false
             }
 
             override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
@@ -203,17 +214,20 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
     }
 
     private fun createAreas(marginTop: Float): List<CalendarEventRect> {
-
         val areas: MutableList<CalendarEventRect> = mutableListOf()
-
+        var index = 0
         for (i in 0 until 6) {
+            //Rows
             val top = ((this.height - marginTop) * (Y_PARTITION_RATIO * i)) + marginTop
             val bottom = ((this.height - marginTop) * (Y_PARTITION_RATIO * (i + 1))) + marginTop
             for (j in 0 until 7) {
+                //Columns
                 val left = this.width.toFloat() * (X_PARTITION_RATIO * j)
                 val right = this.width.toFloat() * (X_PARTITION_RATIO * (j + 1))
                 val rect = CalendarEventRect(left + 1f, top + 1f, right - 1f, bottom - 1f)
                 areas.add(rect)
+                this.daysMatrix[i][j] = index
+                index++
             }
         }
 
@@ -223,6 +237,7 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
 
             val month = this.mutableMonthCalendar.get(Calendar.MONTH)
             val dayOfTheMonth = this.mutableMonthCalendar.get(Calendar.DAY_OF_MONTH)
+            area.date = this.mutableMonthCalendar.time
             area.dayOfTheMonth = dayOfTheMonth
             area.isInCurrentMonth = month == this.monthOfTheYear
             area.isCurrentDayOfMonth = this.isCurrentDayOfMonth(month, dayOfTheMonth)
@@ -297,10 +312,5 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         this.monthCalendar.set(Calendar.MONTH, monthOfTheYear)
         this.mutableMonthCalendar.set(Calendar.MONTH, monthOfTheYear)
         this.invalidate()
-    }
-
-    interface OnDayOfMonthSelectedListener {
-
-        fun onDayOfMonthSelected(dayOfMonth: Int)
     }
 }

@@ -11,7 +11,7 @@ import com.calendar.core.R
 import kotlinx.android.synthetic.main.month_view_fragment_layout.*
 import java.util.*
 
-class MonthViewFragment : Fragment(), MonthView.OnDayOfMonthSelectedListener {
+class MonthViewFragment : Fragment() {
 
     companion object {
         private const val MONTH_OF_THE_YEAR = "MONTH_OF_THE_YEAR"
@@ -51,7 +51,7 @@ class MonthViewFragment : Fragment(), MonthView.OnDayOfMonthSelectedListener {
         super.onViewCreated(view, savedInstanceState)
         this.monthCalendar.set(Calendar.MONTH, this.month)
         this.month_view.setMonth(this.month)
-        this.month_view.dayOfMonthSelectedListener = this
+        this.month_view.dateSelectedListener = this.onDateSelectedListener
     }
 
     override fun onAttach(context: Context?) {
@@ -65,10 +65,5 @@ class MonthViewFragment : Fragment(), MonthView.OnDayOfMonthSelectedListener {
     override fun onDetach() {
         super.onDetach()
         this.onDateSelectedListener = null
-    }
-
-    override fun onDayOfMonthSelected(dayOfMonth: Int) {
-        this.monthCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-        this.onDateSelectedListener?.onDateSelected(this.monthCalendar.time)
     }
 }
