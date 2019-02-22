@@ -8,6 +8,7 @@ import android.view.MotionEvent
 import android.view.View
 import com.calendar.core.CalendarEventRect
 import com.calendar.core.DateSelectedListener
+import com.calendar.core.EventSelectedListener
 import java.util.*
 
 class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : View(context, attrs, defStyleAttr) {
@@ -124,6 +125,8 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
     private var daysMatrix: Array<IntArray> = Array(6) { IntArray(7) }
 
     var dateSelectedListener: DateSelectedListener? = null
+
+    var eventSelectedListener: EventSelectedListener? = null
 
     private val X_PARTITION_RATIO = 1 / 7f
     private val Y_PARTITION_RATIO = 1 / 6f

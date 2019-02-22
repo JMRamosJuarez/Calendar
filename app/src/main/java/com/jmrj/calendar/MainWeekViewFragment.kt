@@ -85,6 +85,6 @@ class MainWeekViewFragment : Fragment(), DateSelectedListener, EventSelectedList
     }
 
     override fun onEventSelected(calendarEvent: CalendarEvent) {
-        Log.i("DATE_SELECTED", calendarEvent.title)
+        Log.i("EVENT_SELECTED", calendarEvent.title)
     }
 }

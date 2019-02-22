@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.calendar.core.DateSelectedListener
+import com.calendar.core.EventSelectedListener
 import com.calendar.core.R
 import kotlinx.android.synthetic.main.month_view_fragment_layout.*
 import java.util.*
@@ -41,7 +42,9 @@ class MonthViewFragment : Fragment() {
         calendar
     }
 
-    private var onDateSelectedListener: DateSelectedListener? = null
+    private var dateSelectedListener: DateSelectedListener? = null
+
+    private var eventSelectedListener: EventSelectedListener? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.month_view_fragment_layout, container, false)
@@ -51,19 +54,24 @@ class MonthViewFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         this.monthCalendar.set(Calendar.MONTH, this.month)
         this.month_view.setMonth(this.month)
-        this.month_view.dateSelectedListener = this.onDateSelectedListener
+        this.month_view.dateSelectedListener = this.dateSelectedListener
+        this.month_view.eventSelectedListener = this.eventSelectedListener
     }
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
         val parentFragment = this.parentFragment
         if (parentFragment is DateSelectedListener) {
-            this.onDateSelectedListener = parentFragment
+            this.dateSelectedListener = parentFragment
+        }
+        if (parentFragment is EventSelectedListener) {
+            this.eventSelectedListener = parentFragment
         }
     }
 
     override fun onDetach() {
         super.onDetach()
-        this.onDateSelectedListener = null
+        this.dateSelectedListener = null
+        this.eventSelectedListener = null
     }
 }

@@ -6,12 +6,14 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.calendar.core.CalendarEvent
 import com.calendar.core.DateSelectedListener
+import com.calendar.core.EventSelectedListener
 import com.calendar.core.month.MonthsFragmentPagerAdapter
 import kotlinx.android.synthetic.main.main_month_view_fragment_layout.*
 import java.util.*
 
-class MainMonthViewFragment : Fragment(), DateSelectedListener {
+class MainMonthViewFragment : Fragment(), DateSelectedListener, EventSelectedListener {
 
     private val calendar: Calendar by lazy { Calendar.getInstance(Locale.getDefault()) }
 
@@ -27,5 +29,9 @@ class MainMonthViewFragment : Fragment(), DateSelectedListener {
 
     override fun onDateSelected(date: Date) {
         Log.i("DATE_SELECTED", date.toString())
+    }
+
+    override fun onEventSelected(calendarEvent: CalendarEvent) {
+        Log.i("EVENT_SELECTED", calendarEvent.title)
     }
 }
