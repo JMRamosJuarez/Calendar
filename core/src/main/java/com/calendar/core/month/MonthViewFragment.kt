@@ -6,10 +6,13 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.calendar.core.*
-import com.calendar.core.EventsHolder.CREATOR.EVENTS_HOLDER
+import com.calendar.core.CalendarEvent
+import com.calendar.core.DateSelectedListener
+import com.calendar.core.EventSelectedListener
+import com.calendar.core.R
 import kotlinx.android.synthetic.main.month_view_fragment_layout.*
 import java.util.*
+import kotlin.collections.ArrayList
 
 class MonthViewFragment : Fragment() {
 
@@ -17,7 +20,8 @@ class MonthViewFragment : Fragment() {
         fun newInstance(monthOfTheYear: Int, calendarEvents: List<CalendarEvent>): MonthViewFragment {
             val f = MonthViewFragment()
             val arguments = Bundle().apply {
-                putParcelable(EVENTS_HOLDER, EventsHolder(monthOfTheYear, calendarEvents))
+                putInt(CalendarEvent.INDEX, monthOfTheYear)
+                putParcelableArrayList(CalendarEvent.EVENTS, ArrayList(calendarEvents))
             }
             f.arguments = arguments
             return f
@@ -25,9 +29,6 @@ class MonthViewFragment : Fragment() {
     }
 
     private val locale: Locale by lazy { Locale.getDefault() }
-
-    private val eventsHolder: EventsHolder?
-        get() = this.arguments?.getParcelable(EVENTS_HOLDER)
 
     private val monthCalendar: Calendar by lazy {
         val calendar: Calendar = Calendar.getInstance(this.locale)
@@ -50,8 +51,9 @@ class MonthViewFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val month = this.eventsHolder?.index ?: 0
-        val events = this.eventsHolder?.events ?: emptyList()
+        val month = this.arguments?.getInt(CalendarEvent.INDEX, 0) ?: 0
+        val events: List<CalendarEvent> = this.arguments?.getParcelableArrayList(CalendarEvent.EVENTS)
+                ?: emptyList()
         this.monthCalendar.set(Calendar.MONTH, month)
         this.month_view.setMonth(month, events)
         this.month_view.dateSelectedListener = this.dateSelectedListener

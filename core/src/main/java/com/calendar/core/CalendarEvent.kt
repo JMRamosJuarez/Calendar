@@ -1,9 +1,15 @@
 package com.calendar.core
 
 import android.graphics.Paint
+import android.os.Parcelable
 import java.util.*
 
-interface CalendarEvent {
+interface CalendarEvent : Parcelable {
+
+    companion object {
+        const val INDEX = "INDEX"
+        const val EVENTS = "EVENTS"
+    }
 
     fun title(): String
 
