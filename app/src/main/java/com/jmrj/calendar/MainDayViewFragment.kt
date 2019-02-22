@@ -23,8 +23,8 @@ class MainDayViewFragment : Fragment(), EventSelectedListener {
         super.onViewCreated(view, savedInstanceState)
         val events: Map<Int, List<CalendarEvent>> = mapOf(
                 Pair(calendar.get(Calendar.DAY_OF_YEAR), listOf(
-                        CalendarEvent("#b8ab9b", "Event title", Date(1547942700000), Date(1547945700000)),
-                        CalendarEvent("#88b9b4", "Second Event title", Date(1547954100000), Date(1547959500000))
+                        CalendarEvent("#b8ab9b", "#000000", "Event title", Date(1547942700000), Date(1547945700000)),
+                        CalendarEvent("#88b9b4", "#000000", "Second Event title", Date(1547954100000), Date(1547959500000))
                 ))
         )
         this.days_view_pager.adapter = DaysFragmentPagerAdapter(this.childFragmentManager, events)

@@ -10,6 +10,7 @@ class CalendarEventRect : RectF {
     constructor(rectF: RectF) : super(rectF)
 
     var calendarEvent: CalendarEvent? = null
+    var calendarEvents: List<CalendarEvent> = emptyList()
     var date: Date? = null
     var dayOfTheMonth: Int = -1
     var dayOfTheWeek: Int = -1

@@ -6,12 +6,15 @@ import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import com.calendar.core.CalendarEvent
 import com.calendar.core.CalendarEventRect
 import com.calendar.core.DateSelectedListener
 import com.calendar.core.EventSelectedListener
 import java.util.*
 
-class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : View(context, attrs, defStyleAttr) {
+class MonthView @JvmOverloads constructor(
+        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+) : View(context, attrs, defStyleAttr) {
 
     private val locale: Locale by lazy { Locale.getDefault() }
 
@@ -72,7 +75,7 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         p.style = Paint.Style.FILL
         p.color = Color.WHITE
         p.textAlign = Paint.Align.CENTER
-        p.textSize = 18f
+        p.textSize = 22f
         p
     }
 
@@ -82,7 +85,7 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         p.style = Paint.Style.FILL
         p.color = Color.parseColor("#9c9c9c")
         p.textAlign = Paint.Align.CENTER
-        p.textSize = 18f
+        p.textSize = 22f
         p
     }
 
@@ -92,7 +95,7 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         p.style = Paint.Style.FILL
         p.color = Color.parseColor("#4a4a4a")
         p.textAlign = Paint.Align.CENTER
-        p.textSize = 18f
+        p.textSize = 22f
         p
     }
 
@@ -127,6 +130,8 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
     var dateSelectedListener: DateSelectedListener? = null
 
     var eventSelectedListener: EventSelectedListener? = null
+
+    private var events: List<CalendarEvent> = emptyList()
 
     private val X_PARTITION_RATIO = 1 / 7f
     private val Y_PARTITION_RATIO = 1 / 6f
@@ -182,6 +187,8 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         this.drawAreas(this.daysAreas, canvas)
 
         this.drawHorizontalLines(marginTop, canvas)
+
+        this.drawVerticalLines(marginTop, canvas)
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
@@ -203,7 +210,9 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
 
         for (area in areas) {
 
-            val currentDayRect = RectF(area.left + 5, area.top + 5, area.right - 5, area.top + 40f)
+            val eventRectHeight = (area.height() / 5f)
+
+            val currentDayRect = RectF(area.left + 5, area.top + 5, area.right - 5, area.top + eventRectHeight)
 
             if (area.isCurrentDayOfMonth) {
                 canvas.drawRoundRect(currentDayRect, 4f, 4f, this.currentDatePaint)
@@ -212,7 +221,62 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
             canvas.drawText("${area.dayOfTheMonth}",
                     currentDayRect.centerX(),
                     currentDayRect.centerY() + (this.whiteTextPaint.textSize / 3),
-                    if (area.isCurrentDayOfMonth) this.whiteTextPaint else if (area.isInCurrentMonth) this.dayOfCurrentMonthTextPaint else this.dayOutOfCurrentMonthTextPaint)
+                    when {
+                        area.isCurrentDayOfMonth -> this.whiteTextPaint
+                        area.isInCurrentMonth -> this.dayOfCurrentMonthTextPaint
+                        else -> this.dayOutOfCurrentMonthTextPaint
+                    })
+
+
+            if (area.isInCurrentMonth) {
+
+                var previousEventRect: RectF? = null
+
+                val events = if (area.calendarEvents.size >= 4) area.calendarEvents.take(4) else area.calendarEvents
+
+                for (i in events.indices) {
+
+                    val event = events[i]
+
+                    if (i <= 2) {
+
+                        val eventRect = RectF(
+                                currentDayRect.left,
+                                if (previousEventRect != null) {
+                                    previousEventRect.bottom + 2f
+                                } else {
+                                    currentDayRect.bottom + 2f
+                                },
+                                currentDayRect.right,
+                                if (previousEventRect != null) {
+                                    (previousEventRect.bottom + eventRectHeight)
+                                } else {
+                                    (currentDayRect.bottom + eventRectHeight)
+                                })
+
+                        canvas.drawRoundRect(eventRect, 4f, 4f, event.eventPaint)
+
+                        canvas.drawText(event.title,
+                                eventRect.centerX(),
+                                eventRect.centerY() + (event.textPaint.textSize / 3),
+                                this.whiteTextPaint)
+
+                        previousEventRect = eventRect
+
+                    } else if (i == 3 && previousEventRect != null) {
+
+                        val pointsRect = RectF(
+                                previousEventRect.left,
+                                previousEventRect.bottom + 2f,
+                                previousEventRect.right,
+                                previousEventRect.bottom + eventRectHeight)
+
+                        canvas.drawCircle(pointsRect.centerX(), pointsRect.centerY(), 8f, event.eventPaint)
+                        canvas.drawCircle(pointsRect.centerX() + 32f, pointsRect.centerY(), 8f, event.eventPaint)
+                        canvas.drawCircle(pointsRect.centerX() - 32f, pointsRect.centerY(), 8f, event.eventPaint)
+                    }
+                }
+            }
         }
     }
 
@@ -236,6 +300,15 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
 
         this.mutableMonthCalendar.timeInMillis = this.monthCalendar.timeInMillis
 
+        val filterCalendar: Calendar = Calendar.getInstance(this.locale)
+        filterCalendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY)
+        filterCalendar.set(Calendar.WEEK_OF_MONTH, 1)
+        filterCalendar.clear(Calendar.HOUR)
+        filterCalendar.clear(Calendar.HOUR_OF_DAY)
+        filterCalendar.clear(Calendar.MINUTE)
+        filterCalendar.clear(Calendar.SECOND)
+        filterCalendar.clear(Calendar.MILLISECOND)
+
         for (area in areas) {
 
             val month = this.mutableMonthCalendar.get(Calendar.MONTH)
@@ -244,7 +317,15 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
             area.dayOfTheMonth = dayOfTheMonth
             area.isInCurrentMonth = month == this.monthOfTheYear
             area.isCurrentDayOfMonth = this.isCurrentDayOfMonth(month, dayOfTheMonth)
-
+            area.calendarEvents = this.events.filter { e ->
+                filterCalendar.time = area.date
+                val t = filterCalendar.get(Calendar.DAY_OF_YEAR)
+                filterCalendar.time = e.startDate
+                val start = filterCalendar.get(Calendar.DAY_OF_YEAR)
+                filterCalendar.time = e.endDate
+                val end = filterCalendar.get(Calendar.DAY_OF_YEAR)
+                t in start..end
+            }
             this.mutableMonthCalendar.add(Calendar.DAY_OF_YEAR, 1)
         }
 
@@ -310,10 +391,11 @@ class MonthView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         return this.currentMonth == month && this.currentDay == day && month == this.monthOfTheYear
     }
 
-    fun setMonth(monthOfTheYear: Int) {
+    fun setMonth(monthOfTheYear: Int, events: List<CalendarEvent>) {
         this.monthOfTheYear = monthOfTheYear
         this.monthCalendar.set(Calendar.MONTH, monthOfTheYear)
         this.mutableMonthCalendar.set(Calendar.MONTH, monthOfTheYear)
+        this.events = events
         this.invalidate()
     }
 }

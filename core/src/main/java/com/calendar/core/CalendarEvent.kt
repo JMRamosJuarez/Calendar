@@ -6,24 +6,40 @@ import android.os.Parcel
 import android.os.Parcelable
 import java.util.*
 
-class CalendarEvent(val hexColor: String, val title: String, val startDate: Date, val endDate: Date) : Parcelable {
+class CalendarEvent(private val eventHexColor: String,
+                    private val textHexColor: String,
+                    val title: String,
+                    val startDate: Date,
+                    val endDate: Date) : Parcelable {
 
     val eventPaint: Paint by lazy {
         val p = Paint()
-        p.color = Color.parseColor(this.hexColor)
+        p.color = if (this.eventHexColor.isBlank()) Color.parseColor("#FFFFFF") else Color.parseColor(this.eventHexColor)
         p.isAntiAlias = true
         p.style = Paint.Style.FILL
+        p
+    }
+
+    val textPaint: Paint by lazy {
+        val p = Paint()
+        p.isAntiAlias = true
+        p.style = Paint.Style.FILL
+        p.color = if (this.textHexColor.isBlank()) Color.parseColor("#000000") else Color.parseColor(this.textHexColor)
+        p.textAlign = Paint.Align.CENTER
+        p.textSize = 22f
         p
     }
 
     constructor(parcel: Parcel) : this(
             parcel.readString() ?: "",
             parcel.readString() ?: "",
+            parcel.readString() ?: "",
             Date(parcel.readLong()),
             Date(parcel.readLong()))
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(hexColor)
+        parcel.writeString(eventHexColor)
+        parcel.writeString(textHexColor)
         parcel.writeString(title)
         parcel.writeLong(this.startDate.time)
         parcel.writeLong(this.endDate.time)
@@ -41,5 +57,9 @@ class CalendarEvent(val hexColor: String, val title: String, val startDate: Date
         override fun newArray(size: Int): Array<CalendarEvent?> {
             return arrayOfNulls(size)
         }
+    }
+
+    override fun toString(): String {
+        return this.title
     }
 }
