@@ -180,9 +180,9 @@ internal class DayView @JvmOverloads constructor(context: Context, attrs: Attrib
 
     private fun createEventRect(calendarEvent: CalendarEvent): CalendarEventRect {
 
-        val startTime = this.getHourInDecimalFormat(calendarEvent.startDate.time)
+        val startTime = this.getHourInDecimalFormat(calendarEvent.startDate().time)
 
-        val endTime = this.getHourInDecimalFormat(calendarEvent.endDate.time)
+        val endTime = this.getHourInDecimalFormat(calendarEvent.endDate().time)
 
         val top = this.height * (Y_PARTITION_RATIO * startTime)
 
@@ -201,9 +201,9 @@ internal class DayView @JvmOverloads constructor(context: Context, attrs: Attrib
 
         if (calendarEvent != null) {
 
-            canvas.drawRoundRect(calendarEventRect, 4f, 4f, calendarEvent.eventPaint)
+            canvas.drawRoundRect(calendarEventRect, 4f, 4f, calendarEvent.eventPaint())
 
-            canvas.drawText(calendarEvent.title, calendarEventRect.centerX(), calendarEventRect.centerY() + (this.whiteTextPaint.textSize / 3), this.whiteTextPaint)
+            canvas.drawText(calendarEvent.title(), calendarEventRect.centerX(), calendarEventRect.centerY() + (this.whiteTextPaint.textSize / 3), this.whiteTextPaint)
         }
     }
 

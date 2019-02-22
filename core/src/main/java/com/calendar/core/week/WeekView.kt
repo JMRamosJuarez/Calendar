@@ -226,7 +226,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
     private fun createEventRect(selectedWeek: Int, calendarEvent: CalendarEvent): CalendarEventRect {
 
-        val startTime = calendarEvent.startDate.time
+        val startTime = calendarEvent.startDate().time
 
         val startTimeCalendar: Calendar = Calendar.getInstance(this.locale)
         startTimeCalendar.timeInMillis = startTime
@@ -238,7 +238,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
         val startWeek = startTimeCalendar.get(Calendar.WEEK_OF_YEAR)
 
-        val endTime = calendarEvent.endDate.time
+        val endTime = calendarEvent.endDate().time
 
         val endTimeCalendar: Calendar = Calendar.getInstance(this.locale)
         endTimeCalendar.timeInMillis = endTime
@@ -291,13 +291,13 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
         if (calendarEvent != null) {
 
-            canvas.drawRoundRect(calendarEventRect, 4f, 4f, calendarEvent.eventPaint)
+            canvas.drawRoundRect(calendarEventRect, 4f, 4f, calendarEvent.eventPaint())
 
             val x = calendarEventRect.centerX()
 
             val y = calendarEventRect.centerY() + (this.whiteTextPaint.textSize / 3)
 
-            canvas.drawText(calendarEvent.title, x, y, this.whiteTextPaint)
+            canvas.drawText(calendarEvent.title(), x, y, this.whiteTextPaint)
         }
     }
 

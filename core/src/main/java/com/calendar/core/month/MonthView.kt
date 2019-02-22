@@ -254,11 +254,11 @@ class MonthView @JvmOverloads constructor(
                                     (currentDayRect.bottom + eventRectHeight)
                                 })
 
-                        canvas.drawRoundRect(eventRect, 4f, 4f, event.eventPaint)
+                        canvas.drawRoundRect(eventRect, 4f, 4f, event.eventPaint())
 
-                        canvas.drawText(event.title,
+                        canvas.drawText(event.title(),
                                 eventRect.centerX(),
-                                eventRect.centerY() + (event.textPaint.textSize / 3),
+                                eventRect.centerY() + (event.titlePaint().textSize / 3),
                                 this.whiteTextPaint)
 
                         previousEventRect = eventRect
@@ -271,9 +271,9 @@ class MonthView @JvmOverloads constructor(
                                 previousEventRect.right,
                                 previousEventRect.bottom + eventRectHeight)
 
-                        canvas.drawCircle(pointsRect.centerX(), pointsRect.centerY(), 8f, event.eventPaint)
-                        canvas.drawCircle(pointsRect.centerX() + 32f, pointsRect.centerY(), 8f, event.eventPaint)
-                        canvas.drawCircle(pointsRect.centerX() - 32f, pointsRect.centerY(), 8f, event.eventPaint)
+                        canvas.drawCircle(pointsRect.centerX(), pointsRect.centerY(), 8f, event.eventPaint())
+                        canvas.drawCircle(pointsRect.centerX() + 32f, pointsRect.centerY(), 8f, event.eventPaint())
+                        canvas.drawCircle(pointsRect.centerX() - 32f, pointsRect.centerY(), 8f, event.eventPaint())
                     }
                 }
             }
@@ -320,9 +320,9 @@ class MonthView @JvmOverloads constructor(
             area.calendarEvents = this.events.filter { e ->
                 filterCalendar.time = area.date
                 val t = filterCalendar.get(Calendar.DAY_OF_YEAR)
-                filterCalendar.time = e.startDate
+                filterCalendar.time = e.startDate()
                 val start = filterCalendar.get(Calendar.DAY_OF_YEAR)
-                filterCalendar.time = e.endDate
+                filterCalendar.time = e.endDate()
                 val end = filterCalendar.get(Calendar.DAY_OF_YEAR)
                 t in start..end
             }
