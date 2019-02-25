@@ -3,13 +3,11 @@ package com.calendar.core.month
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
+import android.util.TypedValue
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
-import com.calendar.core.CalendarEvent
-import com.calendar.core.CalendarEventRect
-import com.calendar.core.DateSelectedListener
-import com.calendar.core.EventSelectedListener
+import com.calendar.core.*
 import java.util.*
 
 class MonthView @JvmOverloads constructor(
@@ -65,8 +63,14 @@ class MonthView @JvmOverloads constructor(
         val p = Paint()
         p.isAntiAlias = true
         p.style = Paint.Style.FILL
-        p.color = Color.parseColor("#86774b")
+        p.color = this.themeColor
         p
+    }
+
+    private val themeColor: Int by lazy {
+        val t = TypedValue()
+        this.context.theme.resolveAttribute(R.attr.colorAccent, t, true)
+        t.data
     }
 
     private val whiteTextPaint: Paint by lazy {
@@ -125,6 +129,8 @@ class MonthView @JvmOverloads constructor(
 
     private var daysAreas: List<CalendarEventRect> = emptyList()
 
+    private var eventAreas: MutableList<CalendarEventRect> = mutableListOf()
+
     private var daysMatrix: Array<IntArray> = Array(6) { IntArray(7) }
 
     var dateSelectedListener: DateSelectedListener? = null
@@ -146,20 +152,36 @@ class MonthView @JvmOverloads constructor(
                 val selectedX = e?.x ?: 0f
                 val selectedY = e?.y ?: 0f
 
-                val row = (selectedY / (this@MonthView.height / 6)).toInt()
+                //Check if user select a event
+                val selectedEventRects = this@MonthView.eventAreas.filter { r ->
+                    r.contains(selectedX, selectedY)
+                }.sortedBy { sr ->
+                    sr.top
+                }
 
-                val column = (selectedX / (this@MonthView.width / 7)).toInt()
+                val selectedEventRect = if (selectedEventRects.isNotEmpty()) selectedEventRects[0] else null
 
-                if (row < 6 && column < 7) {
-                    val index = this@MonthView.daysMatrix[row][column]
-                    if (index < this@MonthView.daysAreas.size) {
-                        val selectedRect = this@MonthView.daysAreas[index]
-                        if (selectedRect.isInCurrentMonth) {
-                            val dayOfTheMonth = selectedRect.dayOfTheMonth
-                            val date = selectedRect.date
-                            if (dayOfTheMonth > -1 && date != null) {
-                                this@MonthView.dateSelectedListener?.onDateSelected(date)
-                                return true
+                //Check if the selectedRect is valid
+                if (selectedEventRect != null && !selectedEventRect.showMore && selectedEventRect.calendarEvent != null) {
+                    this@MonthView.eventSelectedListener?.onEventSelected(selectedEventRect.calendarEvent!!)
+                    return true
+                } else {
+                    //Check if user select a date
+                    val row = (selectedY / (this@MonthView.height / 6)).toInt()
+
+                    val column = (selectedX / (this@MonthView.width / 7)).toInt()
+
+                    if (row < 6 && column < 7) {
+                        val index = this@MonthView.daysMatrix[row][column]
+                        if (index < this@MonthView.daysAreas.size) {
+                            val selectedDateRect = this@MonthView.daysAreas[index]
+                            if (selectedDateRect.isInCurrentMonth) {
+                                val dayOfTheMonth = selectedDateRect.dayOfTheMonth
+                                val date = selectedDateRect.date
+                                if (dayOfTheMonth > -1 && date != null) {
+                                    this@MonthView.dateSelectedListener?.onDateSelected(date)
+                                    return true
+                                }
                             }
                         }
                     }
@@ -208,6 +230,8 @@ class MonthView @JvmOverloads constructor(
 
     private fun drawAreas(areas: List<CalendarEventRect>, canvas: Canvas) {
 
+        this.eventAreas.clear()
+
         for (area in areas) {
 
             val eventRectHeight = (area.height() / 5f)
@@ -227,54 +251,84 @@ class MonthView @JvmOverloads constructor(
                         else -> this.dayOutOfCurrentMonthTextPaint
                     })
 
-
             if (area.isInCurrentMonth) {
-
-                var previousEventRect: RectF? = null
-
+                //Only the first 4 months are painted
                 val events = if (area.calendarEvents.size >= 4) area.calendarEvents.take(4) else area.calendarEvents
+                val dateEventAreas = this.createEventAreas(events, currentDayRect, eventRectHeight)
+                this.drawEventAreas(dateEventAreas, canvas)
+                this.eventAreas.addAll(dateEventAreas)
+            }
+        }
+    }
 
-                for (i in events.indices) {
+    private fun createEventAreas(events: List<CalendarEvent>, currentDayRect: RectF, eventRectHeight: Float): List<CalendarEventRect> {
 
-                    val event = events[i]
+        val eventRects: MutableList<CalendarEventRect> = mutableListOf()
 
-                    if (i <= 2) {
+        var previousEventRect: RectF? = null
 
-                        val eventRect = RectF(
-                                currentDayRect.left,
-                                if (previousEventRect != null) {
-                                    previousEventRect.bottom + 2f
-                                } else {
-                                    currentDayRect.bottom + 2f
-                                },
-                                currentDayRect.right,
-                                if (previousEventRect != null) {
-                                    (previousEventRect.bottom + eventRectHeight)
-                                } else {
-                                    (currentDayRect.bottom + eventRectHeight)
-                                })
+        for (i in events.indices) {
 
-                        canvas.drawRoundRect(eventRect, 4f, 4f, event.eventPaint())
+            val event = events[i]
 
-                        canvas.drawText(event.title(),
-                                eventRect.centerX(),
-                                eventRect.centerY() + (event.titlePaint().textSize / 3),
-                                this.whiteTextPaint)
+            if (i <= 2) {
 
-                        previousEventRect = eventRect
+                val eventRect = CalendarEventRect(
+                        currentDayRect.left,
+                        if (previousEventRect != null) {
+                            previousEventRect.bottom + 2f
+                        } else {
+                            currentDayRect.bottom + 2f
+                        },
+                        currentDayRect.right,
+                        if (previousEventRect != null) {
+                            (previousEventRect.bottom + eventRectHeight)
+                        } else {
+                            (currentDayRect.bottom + eventRectHeight)
+                        })
 
-                    } else if (i == 3 && previousEventRect != null) {
+                eventRect.calendarEvent = event
 
-                        val pointsRect = RectF(
-                                previousEventRect.left,
-                                previousEventRect.bottom + 2f,
-                                previousEventRect.right,
-                                previousEventRect.bottom + eventRectHeight)
+                eventRect.showMore = false
 
-                        canvas.drawCircle(pointsRect.centerX(), pointsRect.centerY(), 8f, event.eventPaint())
-                        canvas.drawCircle(pointsRect.centerX() + 32f, pointsRect.centerY(), 8f, event.eventPaint())
-                        canvas.drawCircle(pointsRect.centerX() - 32f, pointsRect.centerY(), 8f, event.eventPaint())
-                    }
+                eventRects.add(eventRect)
+
+                previousEventRect = eventRect
+
+            } else if (i == 3 && previousEventRect != null) {
+
+                val pointsRect = CalendarEventRect(
+                        previousEventRect.left,
+                        previousEventRect.bottom + 2f,
+                        previousEventRect.right,
+                        previousEventRect.bottom + eventRectHeight)
+
+                pointsRect.calendarEvent = event
+
+                pointsRect.showMore = true
+
+                eventRects.add(pointsRect)
+            }
+        }
+
+        return eventRects
+    }
+
+    private fun drawEventAreas(eventRects: List<CalendarEventRect>, canvas: Canvas) {
+
+        for (eventRect in eventRects) {
+            val event = eventRect.calendarEvent
+            if (event != null) {
+                if (eventRect.showMore) {
+                    canvas.drawCircle(eventRect.centerX(), eventRect.centerY(), 8f, event.eventPaint())
+                    canvas.drawCircle(eventRect.centerX() + 32f, eventRect.centerY(), 8f, event.eventPaint())
+                    canvas.drawCircle(eventRect.centerX() - 32f, eventRect.centerY(), 8f, event.eventPaint())
+                } else {
+                    canvas.drawRoundRect(eventRect, 4f, 4f, event.eventPaint())
+                    canvas.drawText(event.title(),
+                            eventRect.centerX(),
+                            eventRect.centerY() + (event.titlePaint().textSize / 3),
+                            event.titlePaint())
                 }
             }
         }

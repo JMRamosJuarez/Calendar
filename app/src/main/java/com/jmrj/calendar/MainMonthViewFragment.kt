@@ -27,32 +27,32 @@ class MainMonthViewFragment : Fragment(), DateSelectedListener, EventSelectedLis
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val deepPurple1 = CustomEvent("#80673AB7", "#000000",
+        val deepPurple1 = CustomEvent("#80673AB7", "#FFFFFF",
                 "Deep purple",
                 this.dateFormat.parse("01/02/2019 19:00"),
                 this.dateFormat.parse("04/02/2019 20:57"))
 
-        val blue = CustomEvent("#802196F3", "#000000",
+        val blue = CustomEvent("#802196F3", "#FFFFFF",
                 "Blue",
                 this.dateFormat.parse("02/02/2019 09:00"),
                 this.dateFormat.parse("05/02/2019 11:00"))
 
-        val teal = CustomEvent("#80009688", "#000000",
+        val teal = CustomEvent("#80009688", "#FFFFFF",
                 "Teal",
                 this.dateFormat.parse("03/02/2019 12:35"),
                 this.dateFormat.parse("06/02/2019 13:57"))
 
-        val green = CustomEvent("#804CAF50", "#000000",
+        val green = CustomEvent("#804CAF50", "#FFFFFF",
                 "Green",
                 this.dateFormat.parse("04/02/2019 01:35"),
                 this.dateFormat.parse("07/02/2019 06:57"))
 
-        val orange = CustomEvent("#80FF9800", "#000000",
+        val orange = CustomEvent("#80FF9800", "#FFFFFF",
                 "Orange",
                 this.dateFormat.parse("05/02/2019 12:15"),
                 this.dateFormat.parse("08/02/2019 14:07"))
 
-        val brown = CustomEvent("#80795548", "#000000",
+        val brown = CustomEvent("#80795548", "#FFFFFF",
                 "Brown",
                 this.dateFormat.parse("06/02/2019 15:15"),
                 this.dateFormat.parse("09/02/2019 17:59"))
