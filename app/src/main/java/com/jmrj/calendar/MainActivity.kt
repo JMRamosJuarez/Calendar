@@ -5,10 +5,16 @@ import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import com.calendar.core.CalendarEvent
+import com.calendar.core.DateSelectedListener
+import com.calendar.core.EventSelectedListener
 import com.calendar.core.ScrollSynchronizer
 import kotlinx.android.synthetic.main.activity_main.*
+import java.util.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), EventSelectedListener, DateSelectedListener {
+
+    private val calendar: Calendar by lazy { Calendar.getInstance(Locale.getDefault()) }
 
     private val dayViewFragment: MainDayViewFragment
         get() = MainDayViewFragment()
@@ -51,6 +57,20 @@ class MainActivity : AppCompatActivity() {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun onDateSelected(date: Date) {
+        this.calendar.time = date
+        val dayOfTheYear = this.calendar.get(Calendar.DAY_OF_YEAR)
+        val dayFragment = MainDayViewFragment()
+        dayFragment.arguments = Bundle().apply {
+            putInt("DAY_OF_THE_YEAR", dayOfTheYear)
+        }
+        this.replaceFragment(dayFragment)
+    }
+
+    override fun onEventSelected(calendarEvent: CalendarEvent) {
+        //Show event detail
     }
 
     private fun replaceFragment(fragment: Fragment) {

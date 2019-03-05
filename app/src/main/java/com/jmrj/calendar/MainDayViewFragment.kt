@@ -1,5 +1,6 @@
 package com.jmrj.calendar
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
@@ -13,6 +14,8 @@ import java.util.*
 
 class MainDayViewFragment : Fragment(), EventSelectedListener {
 
+    private var eventSelectedListener: EventSelectedListener? = null
+
     private val calendar: Calendar by lazy { Calendar.getInstance(Locale.getDefault()) }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -21,17 +24,26 @@ class MainDayViewFragment : Fragment(), EventSelectedListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val selectedDay = this.arguments?.getInt("DAY_OF_THE_YEAR", 0) ?: this.calendar.get(Calendar.DAY_OF_YEAR)
         val events: Map<Int, List<CalendarEvent>> = mapOf(
-                Pair(calendar.get(Calendar.DAY_OF_YEAR), listOf(
-                        CustomEvent("#b8ab9b", "#000000", "Event title", Date(1547942700000), Date(1547945700000)),
-                        CustomEvent("#88b9b4", "#000000", "Second Event title", Date(1547954100000), Date(1547959500000))
+                Pair(selectedDay, listOf(
+                        CustomEvent(1, "#b8ab9b", "#000000", "Event title", Date(1547942700000), Date(1547945700000)),
+                        CustomEvent(2, "#88b9b4", "#000000", "Second Event title", Date(1547954100000), Date(1547959500000))
                 ))
         )
-        this.days_view_pager.adapter = DaysFragmentPagerAdapter(this.childFragmentManager, events)
-        this.days_view_pager.currentItem = this.calendar.get(Calendar.DAY_OF_YEAR)
+        val adapter = DaysFragmentPagerAdapter(this.childFragmentManager, events)
+        this.days_view_pager.adapter = adapter
+        this.days_view_pager.currentItem = selectedDay
     }
 
     override fun onEventSelected(calendarEvent: CalendarEvent) {
+        this.eventSelectedListener?.onEventSelected(calendarEvent)
+    }
 
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        if (context is EventSelectedListener) {
+            this.eventSelectedListener = context
+        }
     }
 }

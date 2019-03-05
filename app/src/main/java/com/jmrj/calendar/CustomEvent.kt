@@ -7,7 +7,8 @@ import android.os.Parcelable
 import com.calendar.core.CalendarEvent
 import java.util.*
 
-class CustomEvent(private val eventHexColor: String,
+class CustomEvent(private val id: Int,
+                  private val eventHexColor: String,
                   private val titleHexColor: String,
                   private val title: String,
                   private val startDate: Date,
@@ -31,6 +32,8 @@ class CustomEvent(private val eventHexColor: String,
         p
     }
 
+    override fun id(): Int = this.id
+
     override fun eventPaint(): Paint = this.eventPaint
 
     override fun titlePaint(): Paint = this.titlePaint
@@ -46,6 +49,7 @@ class CustomEvent(private val eventHexColor: String,
     }
 
     constructor(parcel: Parcel) : this(
+            parcel.readInt(),
             parcel.readString() ?: "",
             parcel.readString() ?: "",
             parcel.readString() ?: "",
@@ -53,6 +57,7 @@ class CustomEvent(private val eventHexColor: String,
             Date(parcel.readLong()))
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeInt(id)
         parcel.writeString(eventHexColor)
         parcel.writeString(titleHexColor)
         parcel.writeString(title)

@@ -11,6 +11,8 @@ interface CalendarEvent : Parcelable {
         const val EVENTS = "EVENTS"
     }
 
+    fun id(): Int
+
     fun title(): String
 
     fun startDate(): Date
