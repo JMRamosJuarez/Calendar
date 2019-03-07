@@ -32,16 +32,6 @@ internal class DayView @JvmOverloads constructor(context: Context, attrs: Attrib
         p
     }
 
-    private val whiteTextPaint: Paint by lazy {
-        val p = Paint()
-        p.color = Color.WHITE
-        p.isAntiAlias = true
-        p.style = Paint.Style.FILL
-        p.textAlign = Paint.Align.CENTER
-        p.textSize = 24f
-        p
-    }
-
     private val currentHourPaint: Paint by lazy {
         val p = Paint()
         p.color = Color.parseColor("#86774b")
@@ -82,7 +72,7 @@ internal class DayView @JvmOverloads constructor(context: Context, attrs: Attrib
                     this@DayView.eventSelectedListener?.onEventSelected(event)
                 }
 
-                return true
+                return event != null
             }
 
             override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
@@ -191,7 +181,6 @@ internal class DayView @JvmOverloads constructor(context: Context, attrs: Attrib
         val eventRect = CalendarEventRect(this.width / 7f, top, this.width - (this.width / 28f), bottom)
 
         eventRect.calendarEvent = calendarEvent
-
         return eventRect
     }
 
@@ -203,7 +192,7 @@ internal class DayView @JvmOverloads constructor(context: Context, attrs: Attrib
 
             canvas.drawRoundRect(calendarEventRect, 4f, 4f, calendarEvent.eventPaint())
 
-            canvas.drawText(calendarEvent.title(), calendarEventRect.centerX(), calendarEventRect.centerY() + (this.whiteTextPaint.textSize / 3), this.whiteTextPaint)
+            canvas.drawText(calendarEvent.title(), calendarEventRect.centerX(), calendarEventRect.centerY() + (calendarEvent.titlePaint().textSize / 3), calendarEvent.titlePaint())
         }
     }
 

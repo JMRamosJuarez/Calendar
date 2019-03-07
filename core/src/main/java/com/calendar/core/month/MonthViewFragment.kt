@@ -11,8 +11,6 @@ import com.calendar.core.DateSelectedListener
 import com.calendar.core.EventSelectedListener
 import com.calendar.core.R
 import kotlinx.android.synthetic.main.month_view_fragment_layout.*
-import java.util.*
-import kotlin.collections.ArrayList
 
 class MonthViewFragment : Fragment() {
 
@@ -28,19 +26,6 @@ class MonthViewFragment : Fragment() {
         }
     }
 
-    private val locale: Locale by lazy { Locale.getDefault() }
-
-    private val monthCalendar: Calendar by lazy {
-        val calendar: Calendar = Calendar.getInstance(this.locale)
-        calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY)
-        calendar.clear(Calendar.HOUR)
-        calendar.clear(Calendar.HOUR_OF_DAY)
-        calendar.clear(Calendar.MINUTE)
-        calendar.clear(Calendar.SECOND)
-        calendar.clear(Calendar.MILLISECOND)
-        calendar
-    }
-
     private var dateSelectedListener: DateSelectedListener? = null
 
     private var eventSelectedListener: EventSelectedListener? = null
@@ -52,9 +37,8 @@ class MonthViewFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val month = this.arguments?.getInt(CalendarEvent.INDEX, 0) ?: 0
-        val events: List<CalendarEvent> = this.arguments?.getParcelableArrayList(CalendarEvent.EVENTS)
-                ?: emptyList()
-        this.monthCalendar.set(Calendar.MONTH, month)
+        val events: List<CalendarEvent> =
+                this.arguments?.getParcelableArrayList(CalendarEvent.EVENTS) ?: emptyList()
         this.month_view.setMonth(month, events)
         this.month_view.dateSelectedListener = this.dateSelectedListener
         this.month_view.eventSelectedListener = this.eventSelectedListener

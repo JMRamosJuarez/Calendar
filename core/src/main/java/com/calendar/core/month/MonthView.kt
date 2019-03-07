@@ -252,7 +252,7 @@ class MonthView @JvmOverloads constructor(
                     })
 
             if (area.isInCurrentMonth) {
-                //Only the first 4 months are painted
+                //Only the first 4 events are painted
                 val events = if (area.calendarEvents.size >= 4) area.calendarEvents.take(4) else area.calendarEvents
                 val dateEventAreas = this.createEventAreas(events, currentDayRect, eventRectHeight)
                 this.drawEventAreas(dateEventAreas, canvas)
